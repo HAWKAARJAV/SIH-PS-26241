@@ -1,5 +1,6 @@
 "use client";
 
+import { INTEREST_NAMES, PLACE_NAMES, WORRY_PLAIN } from "@/lib/worries";
 import { toPng } from "html-to-image";
 import { useEffect, useRef, useState } from "react";
 
@@ -31,7 +32,10 @@ export default function PlanPage() {
       <article ref={ref} className="space-y-3 rounded-[20px] bg-surface p-6">
         <p className="text-sm text-warning">Illustrative family summary · demo</p>
         <h1 className="font-display text-4xl">Our plan</h1>
-        <p>Interest: {profile.interest}. District: {profile.districtId}. Worry: {profile.worry}.</p>
+        <p>Trade they asked about: {INTEREST_NAMES[profile.interest ?? ""] ?? profile.interest}.</p>
+        <p>Place: {PLACE_NAMES[profile.districtId ?? ""] ?? profile.districtId}, {PLACE_NAMES[profile.stateId ?? ""] ?? ""}.</p>
+        <p>Worry they came in with: {WORRY_PLAIN[profile.worry ?? ""] ?? profile.worry}.</p>
+        <p>Class completed: {profile.classDone === "ITI" ? "Already in an ITI" : `Class ${profile.classDone ?? "—"}`}.</p>
         <h2 className="font-display text-2xl">Next steps</h2>
         <ol className="list-decimal pl-5">
           <li>Visit one centre in daylight.</li>
@@ -64,8 +68,12 @@ function Survey() {
   ] as const;
   async function save() {
     const sessionId = localStorage.getItem("nourish.session");
-    if (!sessionId || questions.some(([key]) => answers[key] === 0)) {
-      setDone("Open a family room, then pick one face for each question.");
+    if (!sessionId) {
+      setDone("Open a family room first. Then come back and pick one answer for each question.");
+      return;
+    }
+    if (questions.some(([key]) => answers[key] === 0)) {
+      setDone("Pick one answer for each of the three questions.");
       return;
     }
     const res = await fetch("/api/v1/survey", {
@@ -83,7 +91,7 @@ function Survey() {
           <p>{label}</p>
           <div className="mt-1 flex gap-2">
             {[["Not really", 1], ["Somewhat", 2], ["Yes", 3]].map(([face, value]) => (
-              <button key={face} type="button" className={`min-h-12 rounded-full px-3 ${answers[key] === value ? "bg-primary text-white" : "bg-surface"}`} onClick={() => setAnswers((a) => ({ ...a, [key]: value }))}>{face}</button>
+              <button key={face} type="button" aria-label={`${label}: ${face}`} className={`min-h-12 rounded-full px-3 ${answers[key] === value ? "bg-primary text-white" : "bg-surface"}`} onClick={() => setAnswers((a) => ({ ...a, [key]: value }))}>{face}</button>
             ))}
           </div>
         </div>

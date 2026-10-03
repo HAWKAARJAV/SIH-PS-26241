@@ -1,5 +1,6 @@
 import { requireStaff } from "@/lib/auth/guard";
-import { adminOverview } from "@/data/services/admin-metrics";
+import { adminOverview, topObjectionInsight } from "@/data/services/admin-metrics";
+import { InsightCard } from "@/components/admin/insight-card";
 import { resistanceRows } from "@/data/services/dashboard";
 import { Sparkline } from "@/components/charts/sparkline";
 
@@ -7,12 +8,20 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminHome() {
   await requireStaff();
-  const [overview, hotspots] = await Promise.all([adminOverview(), resistanceRows()]);
+  const [overview, hotspots, insight] = await Promise.all([adminOverview(), resistanceRows(), topObjectionInsight()]);
   const flagged = hotspots.filter((row) => row.hotspot);
   const trend = [38, 41, 39, 44, 42, overview.meanRi];
   return (
     <section className="space-y-6">
-      <h1 className="font-display text-3xl">Overview</h1>
+      <h1 className="font-display text-3xl">Where families still hesitate</h1>
+      <p className="max-w-2xl text-muted">Each family room writes a worry onto this map. Use it to see which objection is concentrated, then open Resistance for the district grid. Figures below are synthetic.</p>
+      {insight ? (
+        <InsightCard
+          title={`${insight.pct}% of synthetic sessions raise ${insight.tag.replaceAll("_", " ").toLowerCase()}`}
+          body={insight.suggestion}
+          how="Share of synthetic session events carrying this objection tag."
+        />
+      ) : null}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Tile label="Sessions (synthetic)" value={overview.funnel.started} />
         <Tile label="Joint sessions (est.)" value={overview.jointEstimate} />

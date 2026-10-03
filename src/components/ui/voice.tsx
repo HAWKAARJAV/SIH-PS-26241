@@ -23,7 +23,7 @@ export function SpeakerButton({ onSpeak, rate, onToggleRate }: { onSpeak: () => 
   return (
     <>
       <button type="button" className="min-h-12 font-semibold text-info" onClick={onSpeak}>Tap to hear</button>
-      <button type="button" className="min-h-12 text-sm font-semibold text-muted" onClick={onToggleRate}>{rate === 1 ? "1×" : "0.8×"}</button>
+      <button type="button" className="min-h-12 text-sm font-semibold text-muted" onClick={onToggleRate}>{rate === 1 ? "Slower" : "Normal speed"}</button>
     </>
   );
 }

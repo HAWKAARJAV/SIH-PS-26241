@@ -1,6 +1,8 @@
 "use client";
 
 import { useRouter } from "@/lib/i18n/navigation";
+import { FAMILY_WORRIES } from "@/lib/worries";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
@@ -17,17 +19,22 @@ const DISTRICTS: Record<string, { id: string; name: string }[]> = {
   "st-br": [{ id: "d-gangauli", name: "Gangauli" }, { id: "d-sonpurwa", name: "Sonpurwa" }],
 };
 
+const CLASSES = ["8", "10", "12", "ITI"];
+
 function Wizard() {
   const params = useSearchParams();
   const router = useRouter();
+  const t = useTranslations("room");
   const [step, setStep] = useState(0);
   const [stateId, setStateId] = useState("st-up");
   const [districtId, setDistrictId] = useState("d-neemganj");
   const [ageBand, setAgeBand] = useState("15-17");
   const [gender, setGender] = useState("skip");
   const [interest, setInterest] = useState("electrician");
+  const [classDone, setClassDone] = useState("10");
   const [incomeBand, setIncomeBand] = useState("prefer-not");
-  const [worry, setWorry] = useState("INCOME_POTENTIAL");
+  const preset = params.get("worry");
+  const [worry, setWorry] = useState(FAMILY_WORRIES.some((row) => row.id === preset) ? preset! : "INCOME_POTENTIAL");
   const [consents, setConsents] = useState<string[]>(["counselling"]);
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
@@ -41,7 +48,7 @@ function Wizard() {
       return;
     }
     if (under18 && otp !== "123456") {
-      setError("Enter the simulated parent code 123456. This OTP is labelled simulated.");
+      setError("That code is wrong. For this demo, type 123456.");
       return;
     }
     const res = await fetch("/api/v1/families", {
@@ -54,7 +61,7 @@ function Wizard() {
         parental: under18,
         persons: [
           { role: "PARENT", gender: "skip" },
-          { role: "LEARNER", ageBand, gender, interests: interest, classDone: "10" },
+          { role: "LEARNER", ageBand, gender, interests: interest, classDone },
         ],
         consents,
       }),
@@ -64,7 +71,7 @@ function Wizard() {
     localStorage.setItem("nourish.session", data.sessionId);
     localStorage.setItem("nourish.family", data.familyId);
     localStorage.setItem("nourish.join", data.joinCode);
-    localStorage.setItem("nourish.profile", JSON.stringify({ stateId, districtId, ageBand, gender, interest, incomeBand, worry, assisted: assisted ? "1" : "0", mode: params.get("mode") }));
+    localStorage.setItem("nourish.profile", JSON.stringify({ stateId, districtId, ageBand, gender, interest, classDone, incomeBand, worry, assisted: assisted ? "1" : "0", mode: params.get("mode") }));
     router.push("/room");
   }
 
@@ -74,6 +81,7 @@ function Wizard() {
       {step === 0 ? (
         <fieldset className="space-y-3">
           <legend className="font-display text-3xl">Where do you live?</legend>
+          <p className="text-muted">Pay and placement are shown for this district when the dataset has a group large enough.</p>
           <select className="min-h-12 w-full rounded-xl border border-line bg-surface px-3" value={stateId} onChange={(e) => { setStateId(e.target.value); setDistrictId(DISTRICTS[e.target.value]?.[0]?.id ?? ""); }} aria-label="State">
             {STATES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
@@ -90,13 +98,19 @@ function Wizard() {
             <option value="18-25">18–25</option>
           </select>
           <div className="flex flex-wrap gap-2">
-            {["girl", "boy", "other", "skip"].map((g) => (
-              <button type="button" key={g} className={`min-h-12 rounded-full px-4 ${gender === g ? "bg-primary text-white" : "bg-surface border"}`} onClick={() => setGender(g)}>{g}</button>
+            {([["girl", "Girl"], ["boy", "Boy"], ["other", "Other"], ["skip", "Rather not say"]] as const).map(([g, label]) => (
+              <button type="button" key={g} aria-pressed={gender === g} className={`min-h-12 rounded-full px-4 ${gender === g ? "bg-primary text-white" : "bg-surface border"}`} onClick={() => setGender(g)}>{label}</button>
+            ))}
+          </div>
+          <p className="text-sm font-semibold text-muted">Class completed</p>
+          <div className="flex flex-wrap gap-2">
+            {CLASSES.map((c) => (
+              <button type="button" key={c} aria-pressed={classDone === c} className={`min-h-12 rounded-full px-4 ${classDone === c ? "bg-primary text-white" : "border bg-surface"}`} onClick={() => setClassDone(c)}>{c === "ITI" ? "Already in ITI" : `Class ${c}`}</button>
             ))}
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {["electrician", "sewing", "gda", "solar"].map((trade) => (
-              <button type="button" key={trade} className={`min-h-16 rounded-2xl border ${interest === trade ? "bg-primary-soft" : "bg-surface"}`} onClick={() => setInterest(trade)}>{trade}</button>
+            {([["electrician", "Electrician"], ["sewing", "Sewing"], ["gda", "Patient care"], ["solar", "Solar"]] as const).map(([id, label]) => (
+              <button type="button" key={id} aria-pressed={interest === id} className={`min-h-16 rounded-2xl border ${interest === id ? "bg-primary-soft" : "bg-surface"}`} onClick={() => setInterest(id)}>{label}</button>
             ))}
           </div>
         </fieldset>
@@ -112,8 +126,8 @@ function Wizard() {
             <option value="prefer-not">Prefer not to say</option>
           </select>
           <div className="flex flex-wrap gap-2">
-            {["INCOME_POTENTIAL", "JOB_SECURITY", "SOCIAL_STATUS", "GIRLS_SAFETY_TRAVEL", "DEGREE_PREFERENCE"].map((w) => (
-              <button type="button" key={w} className={`min-h-12 rounded-full px-3 ${worry === w ? "bg-accent-soft" : "bg-surface border"}`} onClick={() => setWorry(w)}>{w.replaceAll("_", " ").toLowerCase()}</button>
+            {FAMILY_WORRIES.map((w) => (
+              <button type="button" key={w.id} aria-pressed={worry === w.id} className={`min-h-12 rounded-full px-3 ${worry === w.id ? "bg-accent-soft" : "bg-surface border"}`} onClick={() => setWorry(w.id)}>{t(`chips.${w.chip}`)}</button>
             ))}
           </div>
         </fieldset>
@@ -122,10 +136,14 @@ function Wizard() {
         <fieldset className="space-y-3">
           <legend className="font-display text-3xl">Consent</legend>
           <p>We store this room to counsel you. We never ask for Aadhaar or PAN. You can delete it later.</p>
-          {["counselling", "counsellor sharing", "anonymised analytics"].map((c) => (
+          {([
+            ["counselling", "Counsel us in this room"],
+            ["counsellor sharing", "Let a counsellor read this room"],
+            ["anonymised analytics", "Count this visit without our names"],
+          ] as const).map(([c, label]) => (
             <label key={c} className="flex min-h-12 items-center gap-3">
               <input type="checkbox" checked={consents.includes(c)} onChange={(e) => setConsents((prev) => e.target.checked ? [...prev, c] : prev.filter((x) => x !== c))} />
-              {c}
+              {label}
             </label>
           ))}
           {under18 ? (
@@ -139,7 +157,7 @@ function Wizard() {
       {error ? <p className="text-danger" role="alert">{error}</p> : null}
       <div className="flex gap-2">
         {step > 0 ? <button type="button" className="min-h-12 rounded-full border px-4" onClick={() => setStep((s) => s - 1)}>Back</button> : null}
-        {step < 3 ? <button type="button" className="min-h-12 rounded-full bg-primary px-5 text-white" onClick={() => setStep((s) => s + 1)}>Continue</button> : null}
+        {step < 3 ? <button type="button" className="min-h-12 rounded-full bg-primary px-5 text-white" onClick={() => setStep((s) => s + 1)}>{["Next: the learner", "Next: the household", "Next: consent"][step]}</button> : null}
         {step === 3 ? <button type="button" className="min-h-12 rounded-full bg-primary px-5 text-white" onClick={() => void finish()}>Open Family Room</button> : null}
       </div>
     </div>

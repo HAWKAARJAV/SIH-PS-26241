@@ -16,8 +16,10 @@ export default async function ExplorePage({ params, searchParams }: { params: Pr
   return (
     <div>
       <h1 className="font-display text-4xl sm:text-5xl">{t("title")}</h1>
-      <form className="mt-4">
-        <input name="q" defaultValue={q} aria-label="Filter trades" className="min-h-12 w-full max-w-lg rounded-[var(--radius-input)] border border-line bg-surface px-4 shadow-inner" placeholder="Electrician, sewing, solar…" />
+      <p className="prose-measure mt-3 text-muted">{t("lede")}</p>
+      <form className="mt-4 flex flex-wrap gap-2">
+        <input name="q" defaultValue={q} aria-label={t("searchHint")} className="min-h-12 w-full max-w-lg flex-1 rounded-[var(--radius-input)] border border-line bg-surface px-4 shadow-inner" placeholder="Electrician, sewing, solar…" />
+        <button type="submit" className="min-h-12 rounded-full bg-primary px-5 font-semibold text-white">{t("search")}</button>
       </form>
       {filtered.length === 0 ? (
         <div className="mt-6">

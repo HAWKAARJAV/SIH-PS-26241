@@ -2,7 +2,7 @@ import { cn } from "@/lib/cn";
 
 export function StageStepper({ stages, current }: { stages: string[]; current: string }) {
   return (
-    <ol className="flex flex-wrap gap-2" aria-label="Session stage">
+    <ol className="flex flex-wrap gap-2" aria-label="Where this talk is">
       {stages.map((name) => (
         <li
           key={name}
@@ -49,12 +49,15 @@ export function ProgressRing({ value, label }: { value: number; label: string })
 }
 
 export function ConsensusMeter({ openConcerns, alignment }: { openConcerns: number; alignment: string }) {
-  const score = openConcerns === 0 ? 72 : Math.max(18, 72 - openConcerns * 14);
   return (
     <div className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
-      <h2 className="font-semibold">Consensus</h2>
-      <ProgressRing value={score} label={alignment} />
-      <p className="mt-2 text-xs text-muted">Illustrative overlap of interests and open worries. Not a guarantee.</p>
+      <h2 className="font-semibold">Agreement so far</h2>
+      <p className="mt-2 text-lg font-semibold">{alignment}</p>
+      <p className="mt-1 text-sm text-muted">
+        {openConcerns === 0
+          ? "This stays blank until someone names a worry. It is not a score."
+          : `${openConcerns} open ${openConcerns === 1 ? "worry" : "worries"}. It is not a score of the family.`}
+      </p>
     </div>
   );
 }

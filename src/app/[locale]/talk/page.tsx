@@ -16,7 +16,7 @@ export default function TalkPage() {
     });
     const data = await res.json();
     if (!res.ok) { setStatus(data.error ?? "Could not queue"); return; }
-    setStatus(`Queued. Place ${data.position}. A counsellor SLA is 4 hours in this prototype.`);
+    setStatus(`You are number ${data.position} in the queue. In this demo, a counsellor aims to reply within 4 hours.`);
   }
   return (
     <article className="space-y-4">

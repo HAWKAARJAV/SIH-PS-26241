@@ -20,7 +20,7 @@ export function FamilyShell({ children }: { children: React.ReactNode }) {
   const [scale, setScale] = useState("1");
   useEffect(() => {
     const sync = () => setOffline(!navigator.onLine);
-    if ("serviceWorker" in navigator) {
+    if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => undefined);
     }
     const saved = localStorage.getItem("nourish.scale") ?? "1";
@@ -37,8 +37,8 @@ export function FamilyShell({ children }: { children: React.ReactNode }) {
     };
   }, []);
   return (
-    <div className="mx-auto min-h-dvh max-w-[1200px] pb-28">
-      <div className="paper-grain fixed inset-0" aria-hidden />
+    <div className="mx-auto min-h-dvh max-w-[1200px] pb-40">
+      <div className="paper-grain pointer-events-none fixed inset-0" aria-hidden />
       <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-line bg-bg/90 px-4 py-3 backdrop-blur-sm">
         <Link href="/" className="font-display text-2xl text-primary">{BRAND.name}</Link>
         <div className="flex items-center gap-2">
@@ -47,7 +47,7 @@ export function FamilyShell({ children }: { children: React.ReactNode }) {
             setScale(next);
             localStorage.setItem("nourish.scale", next);
             document.documentElement.style.setProperty("--text-scale", next);
-          }}>Text {scale === "1" ? "A" : scale === "1.12" ? "A+" : "A++"}</button>
+          }}>{t("common.biggerText")} {scale === "1" ? "A" : scale === "1.12" ? "A+" : "A++"}</button>
           <button type="button" className="hidden min-h-12 rounded-full border border-line bg-surface px-3 text-sm sm:inline" onClick={() => {
             const on = document.documentElement.dataset.contrast === "high";
             if (on) delete document.documentElement.dataset.contrast;
@@ -65,13 +65,15 @@ export function FamilyShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       {offline ? <p className="bg-warning-soft px-4 py-3 text-warning" role="status">{t("common.offline")}</p> : null}
-      <main className="px-4 py-6">{children}</main>
-      <Link
-        href="/talk"
-        className="no-print fixed bottom-[4.5rem] right-4 z-50 inline-flex min-h-12 items-center rounded-full bg-info px-5 font-semibold text-white shadow-[0_8px_24px_rgba(var(--shadow),0.15)] sm:bottom-6"
-      >
-        {t("common.talk")}
-      </Link>
+      <main className="relative z-10 px-4 py-6">{children}</main>
+      {pathname === "/" ? null : (
+        <Link
+          href="/talk"
+          className="no-print fixed bottom-[4.5rem] right-4 z-50 inline-flex min-h-12 items-center rounded-full bg-info px-5 font-semibold text-white shadow-[0_8px_24px_rgba(var(--shadow),0.15)] sm:bottom-6"
+        >
+          {t("common.talk")}
+        </Link>
+      )}
       <footer className="px-4 pb-4 text-sm text-muted">{t("footer.disclaimer")}</footer>
       <nav className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]" aria-label="Primary">
         <ul className="mx-auto grid max-w-[1200px] grid-cols-5">

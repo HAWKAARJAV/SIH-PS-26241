@@ -20,8 +20,8 @@ export default async function TradePage({ params }: { params: Promise<{ locale: 
   const roi = evidence.card?.median ? familyRoiMonths(trade.feesMaxInr, evidence.card.median) : null;
   return (
     <article className="space-y-4">
-      <p className="text-sm text-muted">NSQF {String(trade.nsqfLevel)} · framework {trade.nsqfFrameworkVersion} · verify on NQR</p>
       <h1 className="font-display text-4xl">{trade.name}</h1>
+      <p className="text-sm text-muted">Skill-ladder level {String(trade.nsqfLevel)} ({trade.nsqfFrameworkVersion}). Confirm this on the National Qualifications Register before you pay.</p>
       <p className="prose-measure">{trade.dayInLife}</p>
       {evidence.card ? <EvidenceCardView card={evidence.card} locale={locale} /> : <p className="rounded-[20px] bg-warm p-4">No verified data yet. A counsellor can still help. We will not guess a number.</p>}
       <section>
@@ -35,7 +35,7 @@ export default async function TradePage({ params }: { params: Promise<{ locale: 
       <section>
         <h2 className="font-display text-2xl">Costs</h2>
         <p className="tabular">Illustrative fees {formatInr(trade.feesMinInr, locale)} to {formatInr(trade.feesMaxInr, locale)}.</p>
-        {roi ? <p>Family ROI explainer: about {roi} months of median earnings to match the top fee. Illustrative. Ignores living costs.</p> : null}
+        {roi ? <p>At the middle of the demo earnings range, the highest listed fee is about {roi} months of pay. This ignores food and travel. It is an illustration, not a promise.</p> : null}
         <p>PM-SETU upgrades government ITI buildings. NAPS can reimburse an employer up to ₹1,500 of the prescribed stipend. A trainee stipend appears only when a dataset has it.</p>
       </section>
       <section>
