@@ -1,28 +1,39 @@
-# Progress
+# Progress (honest)
 
-- [x] P0 Foundation
-- [x] P1 Design system and shell
-- [x] P2 Data layer
-- [x] P3 Explorer and pathways
-- [x] P4 AI engine and Family Room
-- [x] P5 Onboarding, plan, privacy
-- [x] P6 Escalation and counsellor
-- [x] P7 Admin, analytics, import
-- [x] P8 Locales, speech fallback, offline shell
-- [x] P9 Security headers, error pages, rate limits (axe and Lighthouse not run)
-- [x] P10 Docs and pitch kit (screenshots and Lighthouse still open)
+Evidence column must be filled before ticking.
 
-## 18. Definition of done
+## R0 Truth reset
+- [ ] Restore full `docs/BRIEF.md` — evidence: `docs/BRIEF.md` (still expanding §0–§19)
+- [x] `docs/GAPS.md` with all tickets — evidence: [GAPS.md](./GAPS.md)
+- [x] Rewrite `.github/copilot-instructions.md` — evidence: `.github/copilot-instructions.md`
+- [x] `npm run verify` (local with `.env` from setup), log — evidence: [verify.log](./evidence/verify.log)
 
-- [ ] verify from a clean clone
-- [x] Routes in four locales with loading, empty, error, offline
-- [x] Family Room text and join code; voice uses browser speech when present
-- [x] Evidence cards carry tier, period, n, source
-- [x] Importer dry-run, second-user approve, rollback API
-- [x] Admin hotspots, objections, interventions, k-anonymity
-- [x] Escalation and simulated counsellor join
-- [ ] Lighthouse and axe gates
-- [ ] Screenshots at three widths
-- [x] Consent, delete, RBAC
-- [x] Docs and assumptions
-- [ ] Fact pack re-verify note in the final report
+## R1 Design system and shell (A1, A10, A11, E1–E8, F4)
+- [ ] PWA service worker + icons — evidence: `docs/evidence/pwa.md`
+- [ ] `tokens.css` + contrast build gate — evidence: `npm run contrast`
+- [ ] `/design` all components — evidence: screenshot `docs/screenshots/design-1280.png`
+- [ ] Screenshots 3 widths + design-review — evidence: `docs/evidence/design-review.md`
+
+## R2 Data (G1–G5, A4–A6)
+- [ ] Seed §5.4/§5.5 — evidence: `npm run test`
+- [ ] Playbook + KnowledgeCard locales — evidence: seed script
+- [ ] Admin district names — evidence: admin screenshot
+
+## R3 Explorer (D6–D8, A3)
+- [ ] No hard-coded figures — evidence: grep + landing E2E
+- [ ] Ladder, compare, drawer — evidence: E2E browse
+
+## R4 AI (B1–B10, C1–C5, D1–D4)
+- [ ] AiTurn + retrieval + SSE — evidence: eval report
+- [ ] Family Room join SSE — evidence: J8
+
+## R5–R10
+- [ ] R5 onboarding, plan, assisted — evidence: J1, J5
+- [ ] R6 counsellor — evidence: J2
+- [ ] R7 admin + import — evidence: J3, J4
+- [ ] R8 i18n + offline — evidence: J6–J8
+- [ ] R9 hardening — evidence: lighthouse, axe, bundle
+- [ ] R10 docs + demo rehearsal — evidence: DEMO-SCRIPT run notes
+
+## Finish line (brief §18)
+- [ ] Each item with file in `docs/evidence/` — see `docs/GAPS.md`

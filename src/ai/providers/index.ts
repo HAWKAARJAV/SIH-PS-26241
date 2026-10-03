@@ -25,7 +25,8 @@ export function getProvider(): LlmProvider | null {
     return {
       id: "gemini",
       async complete(messages, opts) {
-        const model = opts.model || env.LLM_MODEL || "gemini-2.0-flash";
+        const model = opts.model || env.LLM_MODEL;
+        if (!model) throw new LlmError("LLM_MODEL is required for Gemini");
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
         const data = (await postJson(
           url,
@@ -49,9 +50,11 @@ export function getProvider(): LlmProvider | null {
     return {
       id: "openai_compat",
       async complete(messages, opts) {
+        const model = opts.model || env.LLM_MODEL;
+        if (!model) throw new LlmError("LLM_MODEL is required for OpenAI-compatible provider");
         const data = (await postJson(
           `${env.OPENAI_COMPAT_BASE_URL.replace(/\/$/, "")}/chat/completions`,
-          { model: opts.model || env.LLM_MODEL, messages },
+          { model, messages },
           { authorization: `Bearer ${env.OPENAI_COMPAT_API_KEY}` },
           opts.timeoutMs,
         )) as { choices?: { message?: { content?: string } }[] };
@@ -65,10 +68,12 @@ export function getProvider(): LlmProvider | null {
     return {
       id: "anthropic",
       async complete(messages, opts) {
+        const model = opts.model || env.LLM_MODEL;
+        if (!model) throw new LlmError("LLM_MODEL is required for Anthropic");
         const data = (await postJson(
           "https://api.anthropic.com/v1/messages",
           {
-            model: opts.model || env.LLM_MODEL || "claude-3-5-haiku-latest",
+            model,
             max_tokens: 800,
             system: messages.find((m) => m.role === "system")?.content ?? "",
             messages: messages.filter((m) => m.role !== "system").map((m) => ({ role: m.role, content: m.content })),

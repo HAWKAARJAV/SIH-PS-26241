@@ -1,6 +1,7 @@
 import { BRAND } from "@/config/brand";
 import { Link } from "@/lib/i18n/navigation";
 import { Courtyard } from "@/components/ui/primitives";
+import { HeroEvidencePreview } from "@/components/evidence/hero-preview";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
@@ -27,11 +28,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </div>
       <div className="relative rounded-[28px] border border-line bg-warm p-6 shadow-[0_20px_48px_rgba(98,60,28,0.10)]">
         <Courtyard className="h-40 w-full" />
-        <div className="mt-4 grid gap-3">
-          <div className="rounded-2xl bg-surface p-3 text-sm shadow">₹12,000 – ₹16,000 – ₹22,000 · demo data</div>
-          <div className="rounded-2xl bg-growth-soft p-3 text-sm">7 out of 10 placed · V0</div>
-          <div className="rounded-2xl bg-info-soft p-3 text-sm">Skill ladder · check on NQR</div>
-        </div>
+        <HeroEvidencePreview locale={locale} />
       </div>
     </div>
   );

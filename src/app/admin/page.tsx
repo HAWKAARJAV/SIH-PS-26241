@@ -23,10 +23,17 @@ export default async function AdminHome() {
       <p className="mt-4">Funnel in this demo is seeded as session and evidence events. Joint-session rate is illustrative because the synthetic log does not store a second device.</p>
       <table className="mt-4 w-full text-left">
         <caption className="text-left">District resistance, cells under 10 hidden</caption>
-        <thead><tr><th>District</th><th>n</th><th>Mean RI</th><th>Hotspot</th></tr></thead>
+        <thead><tr><th>District</th><th>State</th><th>n</th><th>Mean RI</th><th>Hotspot</th><th>Data</th></tr></thead>
         <tbody>
           {hotspots.map((row) => (
-            <tr key={row.districtId}><td>{row.districtId}</td><td className="tabular">{row.n}</td><td className="tabular">{row.meanRi}</td><td>{row.hotspot ? "Yes" : "No"}</td></tr>
+            <tr key={row.districtId}>
+              <td>{row.districtName}</td>
+              <td>{row.stateName}</td>
+              <td className="tabular">{row.n}</td>
+              <td className="tabular">{row.meanRi}</td>
+              <td>{row.hotspot ? "Yes" : "No"}</td>
+              <td>{row.syntheticRibbon ? "Synthetic" : "Mixed / live"}</td>
+            </tr>
           ))}
         </tbody>
       </table>

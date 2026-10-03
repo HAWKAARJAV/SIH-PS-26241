@@ -26,7 +26,13 @@
     "justMe": "Just me",
     "trust1": "Every number shows its source",
     "trust2": "A real counsellor, any time",
-    "trust3": "Your language, even by voice"
+    "trust3": "Your language, even by voice",
+    "noVerifiedYet": "No verified earnings figure for this preview yet. Explore trades to see tiered data.",
+    "ladderChip": "{trade} · NSQF level {level} — check the ladder before you pay fees"
+  },
+  "evidence": {
+    "outOfTen": "out of 10 placed in the cohort window",
+    "medianShort": "median monthly earnings (illustrative slot)"
   },
   "start": {
     "title": "Who is here?",

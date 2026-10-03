@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { CARDS, DISTRICTS, SECTORS, SOURCES, STATES, TRADES } from "./catalog";
 import { seedAnalytics } from "./analytics";
+import { PLAYBOOK_OPENERS } from "../../src/ai/scripted/brain";
+import type { ObjectionCode } from "../../src/ai/scripted/taxonomy";
 
 const TAGS = [
   "INCOME_POTENTIAL", "JOB_SECURITY", "SOCIAL_STATUS", "WORK_SAFETY", "GIRLS_SAFETY_TRAVEL",
@@ -334,9 +336,8 @@ async function main() {
       data: { id: `tag-${code}`, code, labelEn: code.replaceAll("_", " ").toLowerCase() },
     });
     for (const locale of ["en", "hi", "mr", "ta"] as const) {
-      const opener = locale === "en"
-        ? `That's a fair worry about ${code.replaceAll("_", " ").toLowerCase()}.`
-        : `यह चिंता जायज़ है (${code}).`;
+      const pack = PLAYBOOK_OPENERS[locale] ?? PLAYBOOK_OPENERS.en;
+      const opener = pack[code as ObjectionCode];
       await prisma.playbookEntry.create({
         data: {
           id: `pb-${code}-${locale}`,

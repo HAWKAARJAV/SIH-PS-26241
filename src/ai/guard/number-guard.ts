@@ -13,7 +13,7 @@ const DIGIT =
   /[0-9\u0966-\u096F\u0BE6-\u0BEF]+(?:[.,][0-9\u0966-\u096F\u0BE6-\u0BEF]+)?%?/g;
 
 const NUMBER_WORDS =
-  /\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|hundred|thousand|lakh|crore|percent|percentage)\b|\b(ek|do|teen|char|paanch|panch|sau|hazaar|hazar|lakh|pratishat)\b|प्रतिशत|हज़ार|हजार|लाख|सौ|நூறு|ஆயிரம்|சதவீत/gi;
+  /\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|hundred|thousand|lakh|crore|percent|percentage)\b|\b(ek|do|teen|char|paanch|panch|paanch hazaar|sau|hazaar|hazar|lakh|crore|pratishat)\b|प्रतिशत|हज़ार|हजार|लाख|सौ|கோடி|லட்சம்|நூறு|ஆயிரம்|சதவீத/gi;
 
 export type ResolveResult = {
   text: string;

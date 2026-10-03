@@ -1,13 +1,11 @@
 import { requireStaff } from "@/lib/auth/guard";
-import { resistanceRows } from "@/data/services/dashboard";
+import { objectionTagCounts } from "@/data/services/dashboard";
 
 export const dynamic = "force-dynamic";
 
 export default async function ObjectionsPage() {
   await requireStaff();
-  const rows = await resistanceRows();
-  const tags: Record<string, number> = {};
-  for (const row of rows) for (const [tag, n] of Object.entries(row.tags)) tags[tag] = (tags[tag] ?? 0) + n;
+  const tags = await objectionTagCounts();
   const entries = Object.entries(tags).sort((a, b) => b[1] - a[1]);
   return (
     <section>

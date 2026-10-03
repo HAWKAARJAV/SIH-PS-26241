@@ -18,7 +18,7 @@ export type ScriptBlock =
   | { type: "ladder"; tradeSlug: string }
   | { type: "question"; text: string };
 
-export const OPENERS: Record<string, Record<ObjectionCode, string>> = {
+export const PLAYBOOK_OPENERS: Record<string, Record<ObjectionCode, string>> = {
   en: {
     INCOME_POTENTIAL: "That's a fair worry. A family needs to know what trainees nearby actually earned.",
     JOB_SECURITY: "Wanting a steady job is reasonable. Placement is never a promise.",
@@ -110,8 +110,8 @@ export const OPENERS: Record<string, Record<ObjectionCode, string>> = {
 };
 
 function pack(locale: string): Record<ObjectionCode, string> {
-  if (locale === "hi" || locale === "mr" || locale === "ta") return OPENERS[locale]!;
-  return OPENERS.en!;
+  if (locale === "hi" || locale === "mr" || locale === "ta") return PLAYBOOK_OPENERS[locale]!;
+  return PLAYBOOK_OPENERS.en!;
 }
 
 export function scriptedTurn(input: ScriptInput): {

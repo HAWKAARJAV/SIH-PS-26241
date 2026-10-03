@@ -23,7 +23,12 @@ export default async function ResistancePage() {
         <thead><tr><th>District</th><th>State</th><th>Mean RI</th><th>n</th></tr></thead>
         <tbody>
           {[...rows].sort((a, b) => b.meanRi - a.meanRi).map((row) => (
-            <tr key={row.districtId}><td>{row.districtId}</td><td>{row.stateCode}</td><td className="tabular">{row.meanRi}</td><td className="tabular">{row.n}</td></tr>
+            <tr key={row.districtId}>
+              <td>{row.districtName}{row.syntheticRibbon ? " (synthetic)" : ""}</td>
+              <td>{row.stateName}</td>
+              <td className="tabular">{row.meanRi}</td>
+              <td className="tabular">{row.n}</td>
+            </tr>
           ))}
         </tbody>
       </table>
