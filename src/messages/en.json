@@ -1,0 +1,57 @@
+{
+  "meta": { "title": "Nourish", "description": "Skills that feed a family. Learner and parents decide together." },
+  "nav": { "home": "Home", "room": "Family Room", "explore": "Explore", "plan": "My Plan", "help": "Help" },
+  "footer": { "disclaimer": "Prototype for Smart India Hackathon 2026 — not an official government portal." },
+  "common": {
+    "loading": "Loading…",
+    "emptyTitle": "Nothing to show yet",
+    "emptyBody": "Start with one trade or one worry. We will not fill the gap with a guess.",
+    "errorTitle": "This page did not load",
+    "errorBody": "Check your connection and try again. Your saved plan stays on this device.",
+    "retry": "Try again",
+    "offline": "You are offline. Saved plans and cached trade cards can still open.",
+    "demo": "Demo mode",
+    "back": "Back",
+    "source": "Source",
+    "period": "Period",
+    "cohort": "People in this group",
+    "showProof": "Show proof",
+    "talk": "Talk to a human",
+    "aiLabel": "AI guide"
+  },
+  "home": {
+    "title": "Skills that feed a family.",
+    "lede": "Learner and parents decide together — with local numbers you can check.",
+    "together": "Start together",
+    "justMe": "Just me",
+    "trust1": "Every number shows its source",
+    "trust2": "A real counsellor, any time",
+    "trust3": "Your language, even by voice"
+  },
+  "start": {
+    "title": "Who is here?",
+    "learner": "Learner",
+    "parent": "Parent",
+    "together": "Together",
+    "assisted": "Assisted Mode",
+    "assistedHint": "For an ITI help desk or CSC. Big type. The screen clears after five quiet minutes unless you save.",
+    "continue": "Continue"
+  },
+  "room": {
+    "title": "Family Room",
+    "placeholder": "Say the worry in your own words",
+    "send": "Send",
+    "parent": "Parent",
+    "learner": "Learner",
+    "hear": "Tap to hear",
+    "ledger": "Concern ledger",
+    "consensus": "Consensus",
+    "empty": "Tell Disha what is on your mind. A parent’s worry is welcome first."
+  },
+  "explore": { "title": "Explore trades", "empty": "No trade matches these filters." },
+  "plan": { "title": "My Plan", "empty": "Shortlist a trade to build a plan you can print or send." },
+  "talk": { "title": "Talk to a human", "body": "A counsellor can join this room. Helplines stay on this page if you need them now." },
+  "help": { "title": "Help", "voice": "Tap the mic, speak, and read the caption. If the mic is missing, type, or open this page in Chrome." },
+  "privacy": { "title": "Privacy", "delete": "Delete my data", "withdraw": "Withdraw consent" },
+  "demo": { "title": "Demo hub", "reset": "Reset demo", "judge": "Judge Mode" }
+}

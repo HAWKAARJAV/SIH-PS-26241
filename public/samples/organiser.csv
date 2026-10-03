@@ -1,0 +1,3 @@
+trade_slug,scope,district,state,provider_name,cohort_period,cohort_size,placement_rate,placement_window_months,earnings_p25,earnings_median,earnings_p75,women_placement_rate
+electrician,district,Neemganj,Uttar Pradesh,,Apr 2025 – Mar 2026,40,0.70,6,11000,15000,21000,0.55
+sewing,district,Mullai,Tamil Nadu,,Apr 2025 – Mar 2026,32,0.45,6,9000,12000,16000,0.33

@@ -1,0 +1,480 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Source {
+  id          String   @id
+  title       String
+  url         String
+  publisher   String
+  retrievedAt String
+  notes       String   @default("")
+  tierHint    String   @default("V2")
+  cards       KnowledgeCard[]
+  outcomes    OutcomeStat[]
+  edges       ProgressionEdge[]
+  funding     FundingOption[]
+}
+
+model Dataset {
+  id         String   @id
+  version    Int
+  label      String
+  status     String
+  checksum   String
+  kind       String   @default("synthetic")
+  createdAt  String
+  approvedBy String?
+  note       String   @default("")
+  outcomes   OutcomeStat[]
+}
+
+model State {
+  id        String     @id
+  name      String
+  code      String     @unique
+  districts District[]
+}
+
+model District {
+  id        String     @id
+  name      String
+  stateId   String
+  state     State      @relation(fields: [stateId], references: [id])
+  lgdCode   String?
+  lat       Float?
+  lng       Float?
+  rural     Boolean    @default(false)
+  providers Provider[]
+  outcomes  OutcomeStat[]
+}
+
+model Sector {
+  id     String  @id
+  name   String
+  trades Trade[]
+}
+
+model Trade {
+  id                    String            @id
+  slug                  String            @unique
+  name                  String
+  sectorId              String
+  sector                Sector            @relation(fields: [sectorId], references: [id])
+  nsqfLevel             Decimal
+  nsqfFrameworkVersion  String
+  durationMonths        Int
+  entryQualification    String
+  feesMinInr            Int
+  feesMaxInr            Int
+  summary               String
+  dayInLife             String
+  safetyNotes           String
+  notFor                String
+  pros                  String
+  cons                  String
+  womenLens             String
+  icon                  String
+  tags                  String            @default("")
+  roles                 JobRole[]
+  quals                 Qualification[]
+  providerTrades        ProviderTrade[]
+  outcomes              OutcomeStat[]
+  edgesFrom             ProgressionEdge[] @relation("FromTrade")
+}
+
+model JobRole {
+  id       String  @id
+  tradeId  String
+  trade    Trade   @relation(fields: [tradeId], references: [id])
+  title    String
+  ncoCode  String?
+  summary  String
+}
+
+model Qualification {
+  id      String  @id
+  tradeId String
+  trade   Trade   @relation(fields: [tradeId], references: [id])
+  name    String
+  nqrId   String?
+  qpCode  String?
+}
+
+model Provider {
+  id             String          @id
+  name           String
+  type           String
+  districtId     String
+  district       District        @relation(fields: [districtId], references: [id])
+  fictional      Boolean         @default(true)
+  girlsOnly      Boolean         @default(false)
+  hostel         Boolean         @default(false)
+  transport      Boolean         @default(false)
+  facilities     String
+  accreditation  String
+  contactPhone   String
+  address        String
+  weak           Boolean         @default(false)
+  trades         ProviderTrade[]
+  outcomes       OutcomeStat[]
+}
+
+model ProviderTrade {
+  id         String   @id
+  providerId String
+  tradeId    String
+  provider   Provider @relation(fields: [providerId], references: [id])
+  trade      Trade    @relation(fields: [tradeId], references: [id])
+  seats      Int
+
+  @@unique([providerId, tradeId])
+}
+
+model OutcomeStat {
+  id                      String    @id
+  scope                   String
+  tradeId                 String?
+  trade                   Trade?    @relation(fields: [tradeId], references: [id])
+  providerId              String?
+  provider                Provider? @relation(fields: [providerId], references: [id])
+  districtId              String?
+  district                District? @relation(fields: [districtId], references: [id])
+  stateId                 String?
+  cohortPeriod            String
+  cohortSize              Int
+  placementRate           Float?
+  placementWindowMonths   Int       @default(6)
+  earningsP25             Int?
+  earningsMedian          Int?
+  earningsP75             Int?
+  apprenticeshipConversion Float?
+  selfEmploymentShare     Float?
+  womenPlacementRate      Float?
+  tier                    String
+  status                  String
+  sourceId                String
+  source                  Source    @relation(fields: [sourceId], references: [id])
+  datasetId               String
+  dataset                 Dataset   @relation(fields: [datasetId], references: [id])
+  lastVerifiedAt          String?
+  verifiedBy              String?
+  placedDefinition        String
+}
+
+model ProgressionEdge {
+  id             String  @id
+  fromTradeId    String?
+  fromTrade      Trade?  @relation("FromTrade", fields: [fromTradeId], references: [id])
+  toLabel        String
+  kind           String
+  nsqfLevel      Decimal?
+  requirements   String
+  creditHint     String
+  sourceId       String
+  source         Source  @relation(fields: [sourceId], references: [id])
+  sortOrder      Int     @default(0)
+}
+
+model FundingOption {
+  id          String @id
+  name        String
+  summary     String
+  sourceId    String
+  source      Source @relation(fields: [sourceId], references: [id])
+  appliesNote String
+}
+
+model KnowledgeCard {
+  id            String                  @id
+  slug          String                  @unique
+  title         String
+  body          String
+  topic         String
+  tier          String
+  sourceId      String?
+  source        Source?                 @relation(fields: [sourceId], references: [id])
+  reviewStatus  String                  @default("reviewed")
+  translations  KnowledgeCardTranslation[]
+}
+
+model KnowledgeCardTranslation {
+  id           String        @id
+  cardId       String
+  card         KnowledgeCard @relation(fields: [cardId], references: [id])
+  locale       String
+  title        String
+  body         String
+  reviewStatus String        @default("machine")
+
+  @@unique([cardId, locale])
+}
+
+model ObjectionTag {
+  id          String          @id
+  code        String          @unique
+  labelEn     String
+  playbooks   PlaybookEntry[]
+}
+
+model PlaybookEntry {
+  id           String               @id
+  tagId        String
+  tag          ObjectionTag         @relation(fields: [tagId], references: [id])
+  opener       String
+  caveat       String
+  analogy      String
+  nextStep     String
+  escalateIf   String
+  evidenceHint String
+  locale       String
+  reviewStatus String               @default("machine")
+
+  @@unique([tagId, locale])
+}
+
+model Family {
+  id            String    @id
+  locale        String
+  mode          String
+  stateId       String?
+  districtId    String?
+  incomeBand    String?
+  biggestWorry  String?
+  joinCode      String    @unique
+  assisted      Boolean   @default(false)
+  createdAt     String
+  deletedAt     String?
+  persons       Person[]
+  consents      Consent[]
+  sessions      Session[]
+  escalations   EscalationCase[]
+}
+
+model Person {
+  id        String @id
+  familyId  String
+  family    Family @relation(fields: [familyId], references: [id])
+  role      String
+  ageBand   String?
+  gender    String?
+  classDone String?
+  interests String @default("")
+  canLiveAway String?
+}
+
+model Consent {
+  id          String  @id
+  familyId    String
+  family      Family  @relation(fields: [familyId], references: [id])
+  purposes    String
+  version     String
+  parental    Boolean @default(false)
+  simulatedOtp Boolean @default(false)
+  grantedAt   String
+  withdrawnAt String?
+}
+
+model Session {
+  id          String    @id
+  familyId    String
+  family      Family    @relation(fields: [familyId], references: [id])
+  stage       String    @default("understand")
+  locale      String
+  demoPersona String?
+  createdAt   String
+  messages    Message[]
+  objections  ObjectionEvent[]
+  sentiments  SentimentSample[]
+  stances     StanceSample[]
+  evidence    EvidenceView[]
+  survey      MicroSurvey?
+}
+
+model Message {
+  id          String  @id
+  sessionId   String
+  session     Session @relation(fields: [sessionId], references: [id])
+  speaker     String
+  text        String
+  redacted    String
+  lang        String
+  traceJson   String  @default("{}")
+  createdAt   String
+}
+
+model ObjectionEvent {
+  id         String  @id
+  sessionId  String
+  session    Session @relation(fields: [sessionId], references: [id])
+  tag        String
+  speaker    String
+  intensity  Int
+  status     String
+  createdAt  String
+}
+
+model SentimentSample {
+  id         String  @id
+  sessionId  String
+  session    Session @relation(fields: [sessionId], references: [id])
+  parent     Float?
+  learner    Float?
+  createdAt  String
+}
+
+model StanceSample {
+  id         String  @id
+  sessionId  String
+  session    Session @relation(fields: [sessionId], references: [id])
+  parent     String?
+  learner    String?
+  createdAt  String
+}
+
+model EvidenceView {
+  id         String  @id
+  sessionId  String
+  session    Session @relation(fields: [sessionId], references: [id])
+  factId     String
+  createdAt  String
+}
+
+model EscalationCase {
+  id           String   @id
+  familyId     String
+  family       Family   @relation(fields: [familyId], references: [id])
+  sessionId    String?
+  status       String
+  reason       String
+  language     String
+  districtId   String?
+  priority     Int      @default(1)
+  slaDueAt     String
+  counsellorId String?
+  counsellor   Counsellor? @relation(fields: [counsellorId], references: [id])
+  brief        String
+  createdAt    String
+  notes        EscalationNote[]
+  outcome      EscalationOutcome?
+}
+
+model EscalationNote {
+  id        String          @id
+  caseId    String
+  case      EscalationCase  @relation(fields: [caseId], references: [id])
+  author    String
+  body      String
+  createdAt String
+}
+
+model EscalationOutcome {
+  id        String         @id
+  caseId    String         @unique
+  case      EscalationCase @relation(fields: [caseId], references: [id])
+  code      String
+  note      String         @default("")
+  createdAt String
+}
+
+model Counsellor {
+  id           String           @id
+  name         String
+  languages    String
+  districts    String
+  available    Boolean          @default(true)
+  phone        String
+  userId       String?          @unique
+  cases        EscalationCase[]
+}
+
+model Intervention {
+  id          String @id
+  districtId  String
+  title       String
+  action      String
+  startedAt   String
+  status      String
+  note        String @default("")
+  synthetic   Boolean @default(true)
+}
+
+model MicroSurvey {
+  id            String  @id
+  sessionId     String  @unique
+  session       Session @relation(fields: [sessionId], references: [id])
+  understood    Int
+  confident     Int
+  willVisit     Int
+  createdAt     String
+}
+
+model AnalyticsEvent {
+  id         String  @id
+  kind       String
+  sessionKey String
+  stateCode  String
+  districtId String
+  locale     String
+  tradeSlug  String?
+  gender     String?
+  incomeBand String?
+  payload    String  @default("{}")
+  at         String
+  synthetic  Boolean @default(true)
+}
+
+model User {
+  id           String @id
+  email        String @unique
+  name         String
+  role         String
+  passwordHash String
+  stateCode    String?
+  active       Boolean @default(true)
+}
+
+model AuditLog {
+  id        String @id
+  actorId   String
+  action    String
+  target    String
+  detail    String @default("")
+  at        String
+}
+
+model EvalRun {
+  id        String @id
+  at        String
+  passed    Boolean
+  summary   String
+  reportJson String
+}
+
+model ImportJob {
+  id         String @id
+  filename   String
+  status     String
+  mapping    String
+  dryRun     String
+  checksum   String
+  datasetId  String?
+  makerId    String
+  checkerId  String?
+  createdAt  String
+}
+
+model ReportFlag {
+  id        String @id
+  sessionId String?
+  messageId String?
+  kind      String
+  note      String
+  createdAt String
+  status    String @default("open")
+}

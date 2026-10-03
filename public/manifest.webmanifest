@@ -1,0 +1,12 @@
+{
+  "name": "Nourish",
+  "short_name": "Nourish",
+  "start_url": "/en",
+  "display": "standalone",
+  "background_color": "#FBF6EE",
+  "theme_color": "#B8472E",
+  "lang": "en",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

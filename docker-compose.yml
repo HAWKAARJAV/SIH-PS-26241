@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: file:/data/dev.db
+      AUTH_SECRET: nourish-docker-secret
+      DEMO_MODE: "true"
+      LLM_PROVIDER: none
+      PORT: 3000
+    volumes:
+      - nourish-data:/data
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_PASSWORD: nourish
+      POSTGRES_DB: nourish
+    ports:
+      - "5432:5432"
+volumes:
+  nourish-data:
