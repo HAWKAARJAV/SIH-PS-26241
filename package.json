@@ -6,7 +6,9 @@
   "license": "MIT",
   "scripts": {
     "setup": "test -f .env || cp .env.example .env; prisma generate && prisma db push --skip-generate && tsx prisma/seed/index.ts",
+    "clean": "rm -rf .next",
     "dev": "next dev",
+    "dev:clean": "npm run clean && npm run dev",
     "demo": "next dev",
     "build": "prisma generate && next build",
     "start": "node scripts/start-standalone.mjs",

@@ -33,7 +33,9 @@ Add `src/messages/<locale>.json` with the same keys, register the locale in `src
 
 ## Scripts
 
-`setup`, `dev`, `demo`, `build`, `start`, `lint`, `typecheck`, `test`, `e2e`, `a11y`, `lighthouse`, `eval`, `contrast`, `i18n:check`, `bundle:check`, `seed`, `verify`.
+`setup`, `dev`, `dev:clean`, `demo`, `build`, `start`, `lint`, `typecheck`, `test`, `e2e`, `a11y`, `lighthouse`, `eval`, `contrast`, `i18n:check`, `bundle:check`, `seed`, `verify`.
+
+If pages or APIs return 500 with a JSON parse error in the terminal, stop the dev server and run `npm run dev:clean` (clears a stale `.next` cache).
 
 ## Postgres
 
