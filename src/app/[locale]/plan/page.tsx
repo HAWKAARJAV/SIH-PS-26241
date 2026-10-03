@@ -42,6 +42,47 @@ export default function PlanPage() {
         <button type="button" className="min-h-12 rounded-full bg-primary px-5 text-white" onClick={() => window.print()}>Print / PDF</button>
         <button type="button" className="min-h-12 rounded-full bg-growth px-5 text-white" onClick={() => void shareImage()}>WhatsApp image</button>
       </div>
+      <Survey />
     </div>
+  );
+}
+
+function Survey() {
+  const [done, setDone] = useState("");
+  const [answers, setAnswers] = useState({ understood: 0, confident: 0, willVisit: 0 });
+  const questions = [
+    ["understood", "Did you understand?"],
+    ["confident", "Do you feel more sure?"],
+    ["willVisit", "Will you visit a centre?"],
+  ] as const;
+  async function save() {
+    const sessionId = localStorage.getItem("nourish.session");
+    if (!sessionId || questions.some(([key]) => answers[key] === 0)) {
+      setDone("Open a family room, then pick one face for each question.");
+      return;
+    }
+    const res = await fetch("/api/v1/survey", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ sessionId, ...answers }),
+    });
+    setDone(res.ok ? "Saved. Thank you." : "Could not save. Try again.");
+  }
+  return (
+    <section className="no-print mt-6 rounded-[20px] border border-line bg-warm p-4">
+      <h2 className="font-display text-2xl">Three short questions</h2>
+      {questions.map(([key, label]) => (
+        <div key={key} className="mt-3">
+          <p>{label}</p>
+          <div className="mt-1 flex gap-2">
+            {[["Not really", 1], ["Somewhat", 2], ["Yes", 3]].map(([face, value]) => (
+              <button key={face} type="button" className={`min-h-12 rounded-full px-3 ${answers[key] === value ? "bg-primary text-white" : "bg-surface"}`} onClick={() => setAnswers((a) => ({ ...a, [key]: value }))}>{face}</button>
+            ))}
+          </div>
+        </div>
+      ))}
+      <button type="button" className="mt-4 min-h-12 rounded-full bg-info px-5 text-white" onClick={() => void save()}>Send answers</button>
+      {done ? <p className="mt-2" role="status">{done}</p> : null}
+    </section>
   );
 }

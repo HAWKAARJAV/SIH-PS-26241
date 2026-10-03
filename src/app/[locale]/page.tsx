@@ -12,7 +12,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <div>
         <p className="text-sm font-semibold uppercase tracking-wide text-primary">{BRAND.name}</p>
         <h1 className="mt-2 font-display text-5xl leading-tight sm:text-6xl">
-          Skills that <span className="hand-underline">feed</span> a family.
+          {locale === "en" ? <>Skills that <span className="hand-underline">feed</span> a family.</> : t("home.title")}
         </h1>
         <p className="prose-measure mt-4 text-xl text-muted">{t("home.lede")}</p>
         <div className="mt-6 flex flex-wrap gap-3">

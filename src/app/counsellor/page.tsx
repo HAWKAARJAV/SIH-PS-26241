@@ -12,6 +12,7 @@ export default async function CounsellorHome() {
   return (
     <main className="mx-auto max-w-3xl p-6">
       <h1 className="font-display text-4xl">Counsellor queue</h1>
+      <p className="mt-2 flex gap-4"><Link className="underline" href="/counsellor/schedule">Schedule</Link><Link className="underline" href="/counsellor/playbook">Playbook</Link></p>
       <p className="mt-2">Signed in as {session.user.email}. Simulated replies are labelled in Demo Mode.</p>
       {cases.length === 0 ? <p className="mt-4">Queue is empty.</p> : (
         <ul className="mt-4 space-y-2">
