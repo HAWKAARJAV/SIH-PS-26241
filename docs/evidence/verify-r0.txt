@@ -1,0 +1,241 @@
+
+> nourish@1.0.0 verify
+> npm run setup && npm run contrast && npm run i18n:check && npm run typecheck && npm run lint && npm run test && npm run eval && npm run build && npm run bundle:check
+
+
+> nourish@1.0.0 setup
+> test -f .env || cp .env.example .env; prisma generate && prisma db push --skip-generate && tsx prisma/seed/index.ts
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.19.3) to ./node_modules/@prisma/client in 195ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": SQLite database "dev.db" at "file:./dev.db"
+
+The database is already in sync with the Prisma schema.
+
+Seeded 60 knowledge cards, 30 providers.
+
+> nourish@1.0.0 contrast
+> tsx scripts/contrast-check.ts
+
+contrast ok
+
+> nourish@1.0.0 i18n:check
+> tsx scripts/i18n-check.ts
+
+i18n ok
+
+> nourish@1.0.0 typecheck
+> tsc --noEmit
+
+
+> nourish@1.0.0 lint
+> eslint . --max-warnings 0
+
+
+> nourish@1.0.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /Users/aarjavjain/Desktop/Projects /sih 241
+
+ ✓ tests/unit/core.test.ts (6 tests) 42ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  00:18:58
+   Duration  530ms (transform 67ms, setup 0ms, collect 135ms, tests 42ms, environment 0ms, prepare 53ms)
+
+
+> nourish@1.0.0 eval
+> tsx src/ai/eval/run.ts
+
+eval passed 91 cases
+
+> nourish@1.0.0 build
+> prisma generate && next build
+
+warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: https://pris.ly/prisma-config
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.19.3) to ./node_modules/@prisma/client in 277ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+
+   ▲ Next.js 15.5.27
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 4.1s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/88) ...
+   Generating static pages (22/88) 
+   Generating static pages (44/88) 
+   Generating static pages (66/88) 
+ ✓ Generating static pages (88/88)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /_not-found                            224 B         103 kB
+├ ● /[locale]                              176 B         120 kB
+├   ├ /en
+├   ├ /hi
+├   ├ /mr
+├   └ /ta
+├ ● /[locale]/about                        224 B         103 kB
+├   ├ /en/about
+├   ├ /hi/about
+├   ├ /mr/about
+├   └ /ta/about
+├ ● /[locale]/accessibility                224 B         103 kB
+├   ├ /en/accessibility
+├   ├ /hi/accessibility
+├   ├ /mr/accessibility
+├   └ /ta/accessibility
+├ ● /[locale]/compare                      224 B         103 kB
+├   ├ /en/compare
+├   ├ /hi/compare
+├   ├ /mr/compare
+├   └ /ta/compare
+├ ● /[locale]/demo                       2.37 kB         122 kB
+├   ├ /en/demo
+├   ├ /hi/demo
+├   ├ /mr/demo
+├   └ /ta/demo
+├ ● /[locale]/design                       224 B         103 kB
+├   ├ /en/design
+├   ├ /hi/design
+├   ├ /mr/design
+├   └ /ta/design
+├ ● /[locale]/explore                      176 B         120 kB
+├   ├ /en/explore
+├   ├ /hi/explore
+├   ├ /mr/explore
+├   └ /ta/explore
+├ ● /[locale]/help                         224 B         103 kB
+├   ├ /en/help
+├   ├ /hi/help
+├   ├ /mr/help
+├   └ /ta/help
+├ ● /[locale]/ladder                       224 B         103 kB
+├   ├ /en/ladder
+├   ├ /hi/ladder
+├   ├ /mr/ladder
+├   └ /ta/ladder
+├ ● /[locale]/methodology                  224 B         103 kB
+├   ├ /en/methodology
+├   ├ /hi/methodology
+├   ├ /mr/methodology
+├   └ /ta/methodology
+├ ● /[locale]/offline                      224 B         103 kB
+├   ├ /en/offline
+├   ├ /hi/offline
+├   ├ /mr/offline
+├   └ /ta/offline
+├ ● /[locale]/onboarding                  3.4 kB         123 kB
+├   ├ /en/onboarding
+├   ├ /hi/onboarding
+├   ├ /mr/onboarding
+├   └ /ta/onboarding
+├ ● /[locale]/plan                       6.48 kB         109 kB
+├   ├ /en/plan
+├   ├ /hi/plan
+├   ├ /mr/plan
+├   └ /ta/plan
+├ ● /[locale]/privacy                      956 B         104 kB
+├   ├ /en/privacy
+├   ├ /hi/privacy
+├   ├ /mr/privacy
+├   └ /ta/privacy
+├ ƒ /[locale]/providers/[id]             1.75 kB         113 kB
+├ ● /[locale]/room                         166 B         117 kB
+├   ├ /en/room
+├   ├ /hi/room
+├   ├ /mr/room
+├   └ /ta/room
+├ ƒ /[locale]/room/join/[code]             691 B         117 kB
+├ ● /[locale]/sources                      224 B         103 kB
+├   ├ /en/sources
+├   ├ /hi/sources
+├   ├ /mr/sources
+├   └ /ta/sources
+├ ● /[locale]/start                        176 B         120 kB
+├   ├ /en/start
+├   ├ /hi/start
+├   ├ /mr/start
+├   └ /ta/start
+├ ● /[locale]/talk                       1.32 kB         104 kB
+├   ├ /en/talk
+├   ├ /hi/talk
+├   ├ /mr/talk
+├   └ /ta/talk
+├ ƒ /[locale]/trades/[slug]              1.76 kB         130 kB
+├ ƒ /admin                                 224 B         103 kB
+├ ƒ /admin/ai                              224 B         103 kB
+├ ƒ /admin/audit                           224 B         103 kB
+├ ƒ /admin/data                            886 B         104 kB
+├ ƒ /admin/escalations                     224 B         103 kB
+├ ƒ /admin/health                          224 B         103 kB
+├ ƒ /admin/interventions                   224 B         103 kB
+├ ○ /admin/login                           224 B         103 kB
+├ ƒ /admin/objections                      224 B         103 kB
+├ ƒ /admin/resistance                      224 B         103 kB
+├ ƒ /admin/users                           224 B         103 kB
+├ ƒ /api-docs                              224 B         103 kB
+├ ƒ /api/auth/[...nextauth]                224 B         103 kB
+├ ƒ /api/health                            224 B         103 kB
+├ ƒ /api/v1/chat                           224 B         103 kB
+├ ƒ /api/v1/demo/reset                     224 B         103 kB
+├ ƒ /api/v1/escalations                    224 B         103 kB
+├ ƒ /api/v1/escalations/[id]               224 B         103 kB
+├ ƒ /api/v1/families                       224 B         103 kB
+├ ƒ /api/v1/flags                          224 B         103 kB
+├ ƒ /api/v1/import                         224 B         103 kB
+├ ƒ /api/v1/import/[id]                    224 B         103 kB
+├ ƒ /api/v1/join                           224 B         103 kB
+├ ƒ /api/v1/playbook-suggestions           224 B         103 kB
+├ ƒ /api/v1/rights                         224 B         103 kB
+├ ƒ /api/v1/sessions/[id]                  224 B         103 kB
+├ ƒ /api/v1/survey                         224 B         103 kB
+├ ƒ /counsellor                            175 B         106 kB
+├ ƒ /counsellor/case/[id]                  626 B         103 kB
+├ ƒ /counsellor/playbook                   764 B         107 kB
+└ ƒ /counsellor/schedule                   175 B         106 kB
++ First Load JS shared by all             103 kB
+  ├ chunks/1255-5cd2fe06309409a0.js      46.5 kB
+  ├ chunks/4bd1b696-f785427dddbba9fb.js  54.2 kB
+  └ other shared chunks (total)          1.92 kB
+
+
+ƒ Middleware                             46.4 kB
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+
+
+> nourish@1.0.0 bundle:check
+> tsx scripts/bundle-check.ts
+
+bundle ok, largest gzipped chunk 68885
