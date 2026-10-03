@@ -5,13 +5,13 @@ Status: `open` | `in_progress` | `closed` | `deferred`. Evidence: path in `docs/
 | ID | Status | Evidence |
 | --- | --- | --- |
 | A1 | in_progress | `public/sw.js`, `docs/evidence/pwa.md` |
-| A2 | in_progress | `docs/BRIEF.md` (expand pending), `docs/PROGRESS.md` |
+| A2 | closed | `docs/BRIEF.md`, `docs/PROGRESS.md` |
 | A3 | closed | `src/components/evidence/hero-preview.tsx`, `docs/evidence/verify.log` |
 | A4 | closed | `src/app/admin/page.tsx`, `docs/evidence/verify.log` |
 | A5 | closed | `prisma/seed/index.ts` + `PLAYBOOK_OPENERS` |
 | A6 | open | `prisma/seed/catalog.ts` |
 | A7 | closed | `src/data/services/dashboard.ts` |
-| A8 | closed | `docs/evidence/verify.log` |
+| A8 | closed | `docs/evidence/verify-r0.txt` |
 | A9 | open | `scripts/bundle-check.ts`, `docs/ASSUMPTIONS.md` |
 | A10 | open | `src/components/charts/` |
 | A11 | open | `public/fonts/`, `docs/ATTRIBUTIONS.md` |
