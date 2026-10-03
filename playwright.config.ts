@@ -10,10 +10,10 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: "npm run start",
+    command: "npm run setup && node scripts/start-standalone.mjs",
     url: "http://127.0.0.1:3000/api/health",
-    reuseExistingServer: true,
-    timeout: 120_000,
+    reuseExistingServer: !process.env.CI,
+    timeout: 180_000,
   },
   projects: [
     { name: "mobile", use: { ...devices["Pixel 5"], viewport: { width: 360, height: 800 } } },
