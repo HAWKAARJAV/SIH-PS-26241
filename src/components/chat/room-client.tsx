@@ -120,15 +120,48 @@ export function RoomClient({ locale }: { locale: string }) {
     try {
       const id = await ensureSession();
       setMsgs((m) => [...m, { id: crypto.randomUUID(), speaker, text: value }]);
-      const res = await fetch("/api/v1/chat", {
+      const dishaId = crypto.randomUUID();
+      setMsgs((m) => [...m, { id: dishaId, speaker: "DISHA", text: "" }]);
+      const res = await fetch("/api/v1/chat/stream", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ sessionId: id, text: value, speaker }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Chat failed");
-      setMsgs((m) => [...m, { id: data.message.id, speaker: "DISHA", text: data.message.text, card: data.card, trace: data.trace }]);
-      setConcerns(data.objections ?? []);
+      if (!res.ok || !res.body) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as { error?: string }).error ?? "Chat failed");
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let full = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split("\n\n");
+        buffer = parts.pop() ?? "";
+        for (const part of parts) {
+          const line = part.trim();
+          if (!line.startsWith("data: ")) continue;
+          const payload = JSON.parse(line.slice(6)) as { type: string; text?: string; message?: Msg; card?: EvidenceCard; trace?: unknown; objections?: Concern[] };
+          if (payload.type === "token" && payload.text) {
+            full += payload.text;
+            setMsgs((m) => m.map((row) => (row.id === dishaId ? { ...row, text: full } : row)));
+          }
+          if (payload.type === "done" && payload.message) {
+            setMsgs((m) =>
+              m.map((row) =>
+                row.id === dishaId
+                  ? { ...row, id: payload.message!.id, text: payload.message!.text, card: payload.card ?? null, trace: payload.trace }
+                  : row,
+              ),
+            );
+            setConcerns(payload.objections ?? []);
+          }
+          if (payload.type === "error") throw new Error("Stream failed");
+        }
+      }
       setText("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Chat failed");

@@ -1,0 +1,28 @@
+[
+  {
+    "trade_slug": "electrician",
+    "scope": "district",
+    "district": "Neemganj",
+    "state": "Uttar Pradesh",
+    "provider_name": "",
+    "cohort_period": "Apr 2025 – Mar 2026",
+    "cohort_size": "40",
+    "placement_rate": "0.7",
+    "earnings_p25": "11000",
+    "earnings_median": "15000",
+    "earnings_p75": "21000"
+  },
+  {
+    "trade_slug": "sewing",
+    "scope": "district",
+    "district": "Mullai",
+    "state": "Tamil Nadu",
+    "provider_name": "",
+    "cohort_period": "Apr 2025 – Mar 2026",
+    "cohort_size": "32",
+    "placement_rate": "0.45",
+    "earnings_p25": "9000",
+    "earnings_median": "12000",
+    "earnings_p75": "16000"
+  }
+]

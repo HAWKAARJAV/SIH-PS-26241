@@ -37,6 +37,7 @@ Re-read `docs/BRIEF.md` §17 at the start of each phase. Tick only with evidence
 - [x] MiniSearch retrieval in pipeline trace — `src/ai/retrieval/knowledge.ts`
 - [x] Judge Mode readable panel — `src/components/chat/judge-panel.tsx`
 - [x] Family Room UI (bubbles, meters, i18n chips) — `/en/room`
+- [x] SSE chat stream — `/api/v1/chat/stream`
 - [ ] Eval §6.11 gates (80+ cases, red-team, counterfactual) — eval passes 91 cases, gates partial
 - [ ] Join-by-code SSE J8 — evidence: TBD
 
@@ -51,8 +52,9 @@ Re-read `docs/BRIEF.md` §17 at the start of each phase. Tick only with evidence
 
 ## P7 Admin + import
 - [x] District names in admin tables — verify build
-- [ ] Cartogram §12, funnel, AI Quality — evidence: TBD
-- [ ] J3, J4 — evidence: TBD
+- [x] Cartogram, funnel, insight cards, AI Quality page — `/admin`, `/admin/resistance`
+- [x] Import wizard CSV/JSON upload + approve/rollback UI — `/admin/data`
+- [ ] J3, J4 Playwright — partial e2e in `tests/e2e/journey.spec.ts`
 
 ## P8 Localisation + speech + offline
 - [x] `i18n:check` keys — verify log

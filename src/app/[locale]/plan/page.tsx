@@ -6,9 +6,11 @@ import { useEffect, useRef, useState } from "react";
 export default function PlanPage() {
   const ref = useRef<HTMLElement>(null);
   const [profile, setProfile] = useState<Record<string, string> | null>(null);
+  const [joinCode, setJoinCode] = useState("");
   useEffect(() => {
     const raw = localStorage.getItem("nourish.profile");
     setProfile(raw ? JSON.parse(raw) as Record<string, string> : null);
+    setJoinCode(localStorage.getItem("nourish.join") ?? "");
   }, []);
   async function shareImage() {
     if (!ref.current) return;
@@ -37,6 +39,11 @@ export default function PlanPage() {
           <li>Compare with a degree path before paying.</li>
         </ol>
         <p className="text-sm">Prototype for Smart India Hackathon 2026 — not an official government portal.</p>
+        {joinCode ? (
+          <p className="rounded-xl bg-warm p-3 text-sm">
+            Resume on another phone: open Family Room and enter join code <span className="tabular font-bold">{joinCode}</span>
+          </p>
+        ) : null}
       </article>
       <div className="no-print mt-4 flex gap-2">
         <button type="button" className="min-h-12 rounded-full bg-primary px-5 text-white" onClick={() => window.print()}>Print / PDF</button>

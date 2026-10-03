@@ -1,38 +1,50 @@
 import { requireStaff } from "@/lib/auth/guard";
-import { prisma } from "@/lib/db";
+import { adminOverview } from "@/data/services/admin-metrics";
 import { resistanceRows } from "@/data/services/dashboard";
+import { Sparkline } from "@/components/charts/sparkline";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminHome() {
   await requireStaff();
-  const [families, events, hotspots] = await Promise.all([
-    prisma.family.count({ where: { deletedAt: null } }),
-    prisma.analyticsEvent.count(),
-    resistanceRows(),
-  ]);
+  const [overview, hotspots] = await Promise.all([adminOverview(), resistanceRows()]);
   const flagged = hotspots.filter((row) => row.hotspot);
+  const trend = [38, 41, 39, 44, 42, overview.meanRi];
   return (
-    <section>
+    <section className="space-y-6">
       <h1 className="font-display text-3xl">Overview</h1>
-      <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        <Tile label="Synthetic sessions" value={events} />
-        <Tile label="Live family rooms" value={families} />
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Tile label="Sessions (synthetic)" value={overview.funnel.started} />
+        <Tile label="Joint sessions (est.)" value={overview.jointEstimate} />
+        <Tile label="Mean RI" value={overview.meanRi} />
         <Tile label="Hotspot districts" value={flagged.length} />
       </div>
-      <p className="mt-4">Funnel in this demo is seeded as session and evidence events. Joint-session rate is illustrative because the synthetic log does not store a second device.</p>
-      <table className="mt-4 w-full text-left">
-        <caption className="text-left">District resistance, cells under 10 hidden</caption>
-        <thead><tr><th>District</th><th>State</th><th>n</th><th>Mean RI</th><th>Hotspot</th><th>Data</th></tr></thead>
+      <div className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
+        <h2 className="font-semibold">RI trend (illustrative)</h2>
+        <Sparkline data={trend} label="Mean resistance index" />
+      </div>
+      <div className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
+        <h2 className="font-semibold">Funnel (correlational)</h2>
+        <table className="mt-2 w-full text-left text-sm">
+          <tbody>
+            <FunnelRow label="Started session" n={overview.funnel.started} />
+            <FunnelRow label="Saw evidence" n={overview.funnel.sawEvidence} />
+            <FunnelRow label="Explored trades (est.)" n={overview.funnel.explored} />
+            <FunnelRow label="Plan survey submitted" n={overview.funnel.planSaved} />
+          </tbody>
+        </table>
+      </div>
+      <table className="w-full text-left text-sm">
+        <caption className="text-left font-semibold">District resistance · cells under k-anon hidden</caption>
+        <thead><tr><th>District</th><th>State</th><th>n</th><th>Mean RI</th><th>Hotspot</th></tr></thead>
         <tbody>
-          {hotspots.map((row) => (
+          {hotspots.slice(0, 12).map((row) => (
             <tr key={row.districtId}>
               <td>{row.districtName}</td>
               <td>{row.stateName}</td>
               <td className="tabular">{row.n}</td>
               <td className="tabular">{row.meanRi}</td>
               <td>{row.hotspot ? "Yes" : "No"}</td>
-              <td>{row.syntheticRibbon ? "Synthetic" : "Mixed / live"}</td>
             </tr>
           ))}
         </tbody>
@@ -42,5 +54,19 @@ export default async function AdminHome() {
 }
 
 function Tile({ label, value }: { label: string; value: number }) {
-  return <div className="rounded-[20px] bg-surface p-4"><p className="text-muted">{label}</p><p className="tabular text-3xl">{value}</p></div>;
+  return (
+    <div className="rounded-[var(--radius-card)] bg-surface p-4 shadow-[0_4px_16px_rgba(var(--shadow),0.06)]">
+      <p className="text-muted">{label}</p>
+      <p className="tabular text-3xl font-semibold">{value}</p>
+    </div>
+  );
+}
+
+function FunnelRow({ label, n }: { label: string; n: number }) {
+  return (
+    <tr>
+      <td className="py-1">{label}</td>
+      <td className="tabular py-1 text-right font-semibold">{n}</td>
+    </tr>
+  );
 }

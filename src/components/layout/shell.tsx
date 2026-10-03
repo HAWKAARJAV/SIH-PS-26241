@@ -66,6 +66,12 @@ export function FamilyShell({ children }: { children: React.ReactNode }) {
       </header>
       {offline ? <p className="bg-warning-soft px-4 py-3 text-warning" role="status">{t("common.offline")}</p> : null}
       <main className="px-4 py-6">{children}</main>
+      <Link
+        href="/talk"
+        className="no-print fixed bottom-[4.5rem] right-4 z-50 inline-flex min-h-12 items-center rounded-full bg-info px-5 font-semibold text-white shadow-[0_8px_24px_rgba(var(--shadow),0.15)] sm:bottom-6"
+      >
+        {t("common.talk")}
+      </Link>
       <footer className="px-4 pb-4 text-sm text-muted">{t("footer.disclaimer")}</footer>
       <nav className="no-print fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)]" aria-label="Primary">
         <ul className="mx-auto grid max-w-[1200px] grid-cols-5">
