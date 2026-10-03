@@ -49,10 +49,23 @@
     "send": "Send",
     "parent": "Parent",
     "learner": "Learner",
+    "together": "Together",
     "hear": "Tap to hear",
     "ledger": "Concern ledger",
     "consensus": "Consensus",
-    "empty": "Tell Disha what is on your mind. A parent’s worry is welcome first."
+    "empty": "Tell Disha what is on your mind. A parent’s worry is welcome first.",
+    "joinTitle": "Join on another phone",
+    "joinHint": "Enter the six-digit code. Messages refresh every few seconds.",
+    "report": "Report this answer",
+    "wrongNumber": "Wrong number",
+    "chips": {
+      "income": "How much can they earn?",
+      "job": "Is the job secure?",
+      "status": "What will people say?",
+      "girls": "Is it safe for daughters?",
+      "degree": "Better than a degree?",
+      "fees": "Fees and costs?"
+    }
   },
   "explore": { "title": "Explore trades", "empty": "No trade matches these filters." },
   "plan": { "title": "My Plan", "empty": "Shortlist a trade to build a plan you can print or send." },

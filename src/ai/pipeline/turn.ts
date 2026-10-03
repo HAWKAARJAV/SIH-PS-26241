@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
-import { z } from "zod";
 import { isDemoMode } from "@/config/env";
+import { llmJsonSchema } from "@/ai/schema/aiturn";
+import { searchKnowledge } from "@/ai/retrieval/knowledge";
 import { scriptedTurn } from "@/ai/scripted/brain";
 import { guardReply, resolveSlots, type FactSlot } from "@/ai/guard/number-guard";
 import { redactPii } from "@/lib/privacy/redact";
@@ -9,12 +10,6 @@ import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/db";
 import { resolveEvidence } from "@/data/services/outcomes";
 import { SENSITIVE } from "@/ai/scripted/taxonomy";
-
-const turnSchema = z.object({
-  language: z.string(),
-  text: z.string(),
-  usedFactIds: z.array(z.string()),
-});
 
 export async function runTurn(input: {
   sessionId: string;
@@ -38,6 +33,7 @@ export async function runTurn(input: {
     stateId: session.family.stateId,
     locale: session.locale,
   });
+  const retrieval = await searchKnowledge(session.locale, redacted, 2);
   const scripted = scriptedTurn({
     text: redacted,
     locale: session.locale,
@@ -62,7 +58,7 @@ export async function runTurn(input: {
           ],
           { timeoutMs: 12000, model: process.env.LLM_MODEL ?? "" },
         );
-        const parsed = turnSchema.safeParse(JSON.parse(completion));
+        const parsed = llmJsonSchema.safeParse(JSON.parse(completion));
         if (parsed.success) {
           rawText = parsed.data.text;
           provider = llm.id;
@@ -109,6 +105,10 @@ export async function runTurn(input: {
     provider,
     fallback,
     scripted: fallback,
+    retrieval: retrieval.map((r) => ({ id: r.id, title: r.title, tier: r.tier })),
+    sentiment: scripted.sentiment,
+    stance: scripted.stance,
+    usedFactIds: resolved.usedFactIds,
   };
   const now = new Date().toISOString();
   await prisma.message.create({

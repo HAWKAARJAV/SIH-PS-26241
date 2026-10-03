@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { resolveEvidence } from "@/data/services/outcomes";
+import { CompareTable } from "@/components/ui/compare-table";
 import { setRequestLocale } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
@@ -10,25 +11,21 @@ export default async function ComparePage({ params }: { params: Promise<{ locale
   const slugs = ["electrician", "sewing", "copa"];
   const trades = await prisma.trade.findMany({ where: { slug: { in: slugs } } });
   const cards = await Promise.all(trades.map(async (trade) => ({ trade, evidence: await resolveEvidence({ tradeId: trade.id, locale }) })));
+  const rows = cards.map(({ trade, evidence }) => ({
+    name: trade.name,
+    meta: `${trade.durationMonths} months · ${trade.entryQualification}`,
+    worry: trade.cons.slice(0, 120),
+    card: evidence.card,
+    note: trade.notFor.slice(0, 100),
+  }));
   return (
     <article>
-      <h1 className="font-display text-4xl">Compare</h1>
-      <p className="mt-2">A degree path sits beside the trades. Where demo data is missing, we use words, not invented numbers.</p>
-      <div className="mt-4 grid gap-3 lg:grid-cols-3">
-        {cards.map(({ trade, evidence }) => (
-          <section key={trade.id} className="rounded-[20px] border border-line bg-surface p-4">
-            <h2 className="font-display text-2xl">{trade.name}</h2>
-            <p>{trade.durationMonths} months · {trade.entryQualification}</p>
-            <p className="mt-2">{evidence.card ? evidence.card.rateLabel : "No verified placement figure."}</p>
-            <p>{evidence.card ? evidence.card.rangeLabel : "No verified earnings figure."}</p>
-            <p className="mt-2 text-sm">{evidence.card?.tier === "V0" ? "In demo data." : ""} {trade.notFor}</p>
-          </section>
-        ))}
-        <section className="rounded-[20px] border border-line bg-warm p-4">
-          <h2 className="font-display text-2xl">Degree path</h2>
-          <p>Stay for Class 12 or a college course if the family wants that first. Credits from a trade may count later under NCrF. No earnings number is shown here because this dataset has no degree-cohort wages.</p>
-        </section>
-      </div>
+      <h1 className="font-display text-4xl sm:text-5xl">Compare</h1>
+      <p className="prose-measure mt-2 text-muted">What worries you ↔️ what the data says. A degree path sits beside the trades. No invented numbers.</p>
+      <CompareTable
+        rows={rows}
+        degreeNote="Stay for Class 12 or college if that fits the family first. NCrF credits from a trade may count later. No degree-cohort wages in this demo dataset."
+      />
     </article>
   );
 }

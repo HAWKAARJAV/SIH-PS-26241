@@ -1,15 +1,19 @@
 "use client";
 
 import { EvidenceCardView } from "@/components/evidence/card";
+import { JudgePanel } from "@/components/chat/judge-panel";
+import { ChatBubble, QuickReplyChips, TypingIndicator } from "@/components/ui/chat";
+import { ConsensusMeter, StageStepper } from "@/components/ui/meter";
+import { VoiceButton, SpeakerButton } from "@/components/ui/voice";
 import type { EvidenceCard } from "@/data/services/outcomes";
 import { HELPLINES } from "@/config/helplines";
 import { BRAND } from "@/config/brand";
-import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
 
 type Msg = { id: string; speaker: string; text: string; card?: EvidenceCard | null; trace?: unknown };
 type Concern = { tag: string; intensity: number; speaker: string };
 
-const CHIPS = ["कमाई कितनी होगी?", "क्या नौकरी पक्की है?", "लोग क्या कहेंगे?", "क्या बेटियों के लिए सुरक्षित है?", "डिग्री से बेहतर है क्या?", "फीस और खर्च कितना?"];
 const STAGES = ["Understand", "Explore", "Compare", "Decide", "Plan"];
 
 type Recog = {
@@ -19,7 +23,12 @@ type Recog = {
   onerror: (() => void) | null;
 };
 
+const CHIP_KEYS = ["income", "job", "status", "girls", "degree", "fees"] as const;
+
 export function RoomClient({ locale }: { locale: string }) {
+  const t = useTranslations("room");
+  const tCommon = useTranslations("common");
+  const chips = useMemo(() => CHIP_KEYS.map((k) => t(`chips.${k}`)), [t]);
   const [speaker, setSpeaker] = useState<"PARENT" | "LEARNER" | "TOGETHER">("PARENT");
   const [text, setText] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([]);
@@ -37,8 +46,7 @@ export function RoomClient({ locale }: { locale: string }) {
     setJudge(localStorage.getItem("nourish.judge") === "1");
     setSessionId(localStorage.getItem("nourish.session"));
     setJoin(localStorage.getItem("nourish.join") ?? "");
-    const ua = navigator.userAgent;
-    setInApp(/WhatsApp|Instagram|FBAN|FBAV/i.test(ua));
+    setInApp(/WhatsApp|Instagram|FBAN|FBAV/i.test(navigator.userAgent));
   }, []);
 
   useEffect(() => {
@@ -142,7 +150,7 @@ export function RoomClient({ locale }: { locale: string }) {
     const host = window as Window & { SpeechRecognition?: new () => Recog; webkitSpeechRecognition?: new () => Recog };
     const Ctor = host.SpeechRecognition ?? host.webkitSpeechRecognition;
     if (!Ctor) {
-      setError("This browser has no mic. Open in Chrome, or type the worry.");
+      setError("This browser has no mic. Open in Chrome, or type.");
       return;
     }
     const rec = new Ctor();
@@ -161,82 +169,107 @@ export function RoomClient({ locale }: { locale: string }) {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ sessionId, messageId, kind, note: "" }),
     });
-    setError(kind === "wrong_number" ? "Marked as a wrong number. A steward can see it in AI Quality." : "Reported. Thank you.");
+    setError(kind === "wrong_number" ? "Marked as a wrong number." : "Reported. Thank you.");
   }
 
-  const stage = STAGES[Math.min(STAGES.length - 1, Math.floor(msgs.filter((m) => m.speaker !== "DISHA").length / 2))] ?? "Understand";
+  const evidenceSeen = msgs.some((m) => m.card);
+  const userTurns = msgs.filter((m) => m.speaker !== "DISHA").length;
+  const stage =
+    evidenceSeen && userTurns > 4
+      ? "Compare"
+      : evidenceSeen
+        ? "Explore"
+        : STAGES[Math.min(STAGES.length - 1, Math.floor(userTurns / 2))] ?? "Understand";
   const alignment = concerns.length === 0 ? "Still listening" : concerns.length === 1 ? "One shared worry" : "More than one worry is open";
 
+  function labelFor(role: string) {
+    if (role === "DISHA") return `${BRAND.persona} · ${tCommon("aiLabel")}`;
+    if (role === "PARENT") return t("parent");
+    if (role === "LEARNER") return t("learner");
+    return role;
+  }
+
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
+    <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
       <section>
-        <ol className="mb-3 flex flex-wrap gap-2" aria-label="Stage">
-          {STAGES.map((name) => (
-            <li key={name} className={`rounded-full px-3 py-1 text-sm ${name === stage ? "bg-primary text-white" : "bg-sunken text-muted"}`}>{name}</li>
-          ))}
-        </ol>
-        <div className="mb-3 flex flex-wrap gap-2" role="group" aria-label="Speaker">
+        <StageStepper stages={STAGES} current={stage} />
+        <div className="mb-4 mt-3 flex flex-wrap gap-2" role="group" aria-label="Speaker">
           {(["PARENT", "LEARNER", "TOGETHER"] as const).map((role) => (
-            <button key={role} type="button" className={`min-h-12 rounded-full px-4 ${speaker === role ? "bg-primary text-white" : "border border-line bg-surface"}`} onClick={() => setSpeaker(role)}>
-              {role === "PARENT" ? "Parent" : role === "LEARNER" ? "Learner" : "Together"}
+            <button
+              key={role}
+              type="button"
+              className={`min-h-12 rounded-full px-4 font-semibold transition-transform active:scale-[0.98] ${speaker === role ? "bg-primary text-white" : "border border-line bg-surface"}`}
+              onClick={() => setSpeaker(role)}
+            >
+              {role === "PARENT" ? t("parent") : role === "LEARNER" ? t("learner") : t("together")}
             </button>
           ))}
         </div>
-        {inApp ? <p className="mb-3 rounded-2xl bg-warning-soft p-3 text-sm text-warning">WhatsApp’s browser often hides the mic. Open this page in Chrome, or type.</p> : null}
-        {wiped ? <p className="mb-3 rounded-2xl bg-warm p-3">Assisted Mode cleared this screen after five quiet minutes.</p> : null}
-        <div className="space-y-3" aria-live="polite">
-          {msgs.length === 0 ? <p className="rounded-[20px] bg-warm p-4">Tell {BRAND.persona} what is on your mind. A parent’s worry is welcome first.</p> : null}
+        {inApp ? <p className="mb-3 rounded-[var(--radius-card)] bg-warning-soft p-3 text-sm text-warning">WhatsApp’s browser often hides the mic. Open in Chrome, or type.</p> : null}
+        {wiped ? <p className="mb-3 rounded-[var(--radius-card)] bg-warm p-3">Assisted Mode cleared this screen after five quiet minutes.</p> : null}
+        <div className="space-y-3" aria-live="polite" aria-relevant="additions">
+          {msgs.length === 0 ? <p className="rounded-[var(--radius-card)] bg-warm p-4">{t("empty")}</p> : null}
           {msgs.map((msg) => (
-            <article key={msg.id} className={`rounded-[20px] p-4 ${msg.speaker === "PARENT" ? "bg-clay" : msg.speaker === "LEARNER" ? "bg-neem" : msg.speaker === "COUNSELLOR" ? "bg-info-soft" : "border border-line bg-surface"}`}>
-              <p className="text-sm font-semibold text-muted">{msg.speaker === "DISHA" ? `${BRAND.persona} · AI guide` : msg.speaker}</p>
-              <p className="mt-1">{msg.text}</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <button type="button" className="min-h-12 text-info" onClick={() => speak(msg.text)}>Tap to hear</button>
-                <button type="button" className="min-h-12 text-sm" onClick={() => setRate((r) => (r === 1 ? 0.8 : 1))}>{rate === 1 ? "1×" : "0.8×"}</button>
-                {msg.speaker === "DISHA" ? (
+            <div key={msg.id}>
+              <ChatBubble
+                role={msg.speaker}
+                label={labelFor(msg.speaker)}
+                footer={
                   <>
-                    <button type="button" className="min-h-12 text-sm" onClick={() => void report(msg.id, "report")}>Report this answer</button>
-                    <button type="button" className="min-h-12 text-sm" onClick={() => void report(msg.id, "wrong_number")}>Wrong number</button>
+                    <SpeakerButton onSpeak={() => speak(msg.text)} rate={rate} onToggleRate={() => setRate((r) => (r === 1 ? 0.8 : 1))} />
+                    {msg.speaker === "DISHA" ? (
+                      <>
+                        <button type="button" className="min-h-12 text-sm font-semibold" onClick={() => void report(msg.id, "report")}>{t("report")}</button>
+                        <button type="button" className="min-h-12 text-sm font-semibold" onClick={() => void report(msg.id, "wrong_number")}>{t("wrongNumber")}</button>
+                      </>
+                    ) : null}
                   </>
-                ) : null}
-              </div>
-              {msg.card ? <div className="mt-3"><EvidenceCardView card={msg.card} locale={locale} /></div> : null}
-              {judge && msg.trace ? <pre className="mt-2 overflow-auto rounded-xl bg-sunken p-3 text-xs">{JSON.stringify(msg.trace, null, 2)}</pre> : null}
-            </article>
+                }
+              >
+                <p>{msg.text}</p>
+                {msg.card ? <div className="mt-3"><EvidenceCardView card={msg.card} locale={locale} /></div> : null}
+              </ChatBubble>
+              {judge && msg.trace ? <JudgePanel trace={msg.trace} /> : null}
+            </div>
           ))}
-          {busy ? <p className="text-sm text-muted">{BRAND.persona} is writing…</p> : null}
+          {busy ? <TypingIndicator /> : null}
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {CHIPS.map((chip) => (
-            <button key={chip} type="button" className="min-h-12 rounded-full border border-line bg-surface px-3" onClick={() => void send(chip)}>{chip}</button>
-          ))}
+        <div className="mt-4">
+          <QuickReplyChips chips={chips} onPick={(c) => void send(c)} disabled={busy} />
         </div>
-        <form className="mt-3 flex gap-2" onSubmit={(e) => { e.preventDefault(); if (text.trim()) void send(text.trim()); }}>
-          <label className="sr-only" htmlFor="composer">Message</label>
-          <input id="composer" value={text} onChange={(e) => setText(e.target.value)} className="min-h-12 flex-1 rounded-2xl border border-line bg-surface px-4" placeholder="Say the worry in your own words" />
-          <button type="button" className="min-h-12 min-w-12 rounded-full bg-growth px-4 text-white" onClick={listen} aria-label="Speak">Mic</button>
-          <button className="min-h-12 rounded-full bg-primary px-5 text-white" disabled={busy} type="submit">{busy ? "…" : "Send"}</button>
+        <form className="mt-4 flex gap-2" onSubmit={(e) => { e.preventDefault(); if (text.trim()) void send(text.trim()); }}>
+          <label className="sr-only" htmlFor="composer">{t("placeholder")}</label>
+          <input id="composer" value={text} onChange={(e) => setText(e.target.value)} className="min-h-12 flex-1 rounded-[var(--radius-input)] border border-line bg-surface px-4" placeholder={t("placeholder")} />
+          <VoiceButton onListen={listen} busy={busy} />
+          <button className="min-h-12 rounded-full bg-primary px-5 font-semibold text-white transition-transform active:scale-[0.98] disabled:opacity-50" disabled={busy} type="submit">{busy ? "…" : t("send")}</button>
         </form>
         {error ? <p className="mt-2 text-danger" role="alert">{error}</p> : null}
       </section>
-      <aside className="space-y-3">
-        <div className="rounded-[20px] border border-line bg-warm p-4">
-          <h2 className="font-semibold">Join code</h2>
-          <p className="tabular text-3xl">{join || "Send a message to get a code"}</p>
-          <p className="text-sm text-muted">The other phone opens Family Room and enters this code. Messages refresh every few seconds.</p>
+      <aside className="space-y-4">
+        <div className="rounded-[var(--radius-card)] border border-line bg-warm p-4">
+          <h2 className="font-semibold">{t("joinTitle")}</h2>
+          <p className="tabular text-3xl font-bold text-primary">{join || "——"}</p>
+          <p className="text-sm text-muted">{t("joinHint")}</p>
           <JoinBox onJoined={(id, joinCode) => { setSessionId(id); setJoin(joinCode); localStorage.setItem("nourish.session", id); localStorage.setItem("nourish.join", joinCode); }} />
         </div>
-        <div className="rounded-[20px] border border-line bg-surface p-4">
-          <h2 className="font-semibold">Concern ledger</h2>
-          {concerns.length === 0 ? <p className="text-sm text-muted">No open worry yet.</p> : (
-            <ul className="mt-2 space-y-1 text-sm">{concerns.map((c) => <li key={`${c.tag}-${c.speaker}`}>{c.speaker}: {c.tag.replaceAll("_", " ").toLowerCase()} · {c.intensity}</li>)}</ul>
+        <ConsensusMeter openConcerns={concerns.length} alignment={alignment} />
+        <div className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
+          <h2 className="font-semibold">{t("ledger")}</h2>
+          {concerns.length === 0 ? <p className="text-sm text-muted">—</p> : (
+            <ul className="mt-2 space-y-2 text-sm">
+              {concerns.map((c) => (
+                <li key={`${c.tag}-${c.speaker}`} className="flex justify-between gap-2">
+                  <span>{c.speaker}: {c.tag.replaceAll("_", " ").toLowerCase()}</span>
+                  <span className="tabular font-semibold">{c.intensity}</span>
+                </li>
+              ))}
+            </ul>
           )}
-          <p className="mt-3 text-sm"><span className="font-semibold">Consensus. </span>{alignment}</p>
         </div>
-        <div className="rounded-[20px] bg-info-soft p-4 text-sm">
-          <p className="font-semibold">If you need a person now</p>
+        <div className="rounded-[var(--radius-card)] bg-info-soft p-4 text-sm">
+          <p className="font-semibold">{tCommon("talk")}</p>
           <ul className="mt-2 space-y-1">
-            {HELPLINES.map((h) => <li key={h.id}><a className="underline" href={h.tel}>{h.name} {h.number}</a></li>)}
+            {HELPLINES.map((h) => <li key={h.id}><a className="font-semibold underline" href={h.tel}>{h.name} {h.number}</a></li>)}
           </ul>
         </div>
       </aside>
@@ -256,8 +289,8 @@ function JoinBox({ onJoined }: { onJoined: (id: string, code: string) => void })
       if (!res.ok) { setErr(data.error ?? "Code not found"); return; }
       onJoined(data.sessionId, code);
     }}>
-      <input aria-label="Join code" value={code} onChange={(e) => setCode(e.target.value)} className="min-h-12 min-w-0 flex-1 rounded-xl border border-line px-3" inputMode="numeric" placeholder="6-digit code" />
-      <button className="min-h-12 rounded-full bg-info px-4 text-white" type="submit">Join</button>
+      <input aria-label="Join code" value={code} onChange={(e) => setCode(e.target.value)} className="min-h-12 min-w-0 flex-1 rounded-xl border border-line px-3" inputMode="numeric" placeholder="000000" />
+      <button className="min-h-12 rounded-full bg-info px-4 font-semibold text-white" type="submit">Join</button>
       {err ? <span className="w-full text-danger">{err}</span> : null}
     </form>
   );

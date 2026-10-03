@@ -1,0 +1,38 @@
+/* Warm Clay — canonical tokens (see docs/BRIEF.md §8.2) */
+:root {
+  color-scheme: light;
+  --bg: #fbf6ee;
+  --bg-sunken: #f4ebdd;
+  --surface: #ffffff;
+  --surface-warm: #fffaf2;
+  --border: #e9ddcb;
+  --ink: #2a211b;
+  --ink-muted: #6b5b4e;
+  --primary: #b8472e;
+  --primary-hover: #9c3a25;
+  --primary-soft: #f9e4db;
+  --accent: #e9a23b;
+  --accent-soft: #fcefd2;
+  --growth: #3f6b49;
+  --growth-soft: #e4efe2;
+  --info: #2f5d7c;
+  --info-soft: #e3eef5;
+  --warning-ink: #8a5a12;
+  --warning-soft: #fbebc8;
+  --danger: #a63a3a;
+  --danger-soft: #f8e1e1;
+  --plum: #7a4a6b;
+  --clay-soft: #f6e3d4;
+  --neem-soft: #e5f0e4;
+  --focus: #2f5d7c;
+  --shadow: 98, 60, 28;
+  --text-scale: 1;
+  --dviz-1: #fbefe6;
+  --dviz-2: #f3cdb5;
+  --dviz-3: #e3a07e;
+  --dviz-4: #c9694a;
+  --dviz-5: #9c3a25;
+  --radius-input: 12px;
+  --radius-card: 20px;
+  --radius-sheet: 28px;
+}

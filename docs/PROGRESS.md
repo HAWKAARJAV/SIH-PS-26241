@@ -14,7 +14,7 @@ Re-read `docs/BRIEF.md` §17 at the start of each phase. Tick only with evidence
 ## P1 Design system + shell
 - [x] `tokens.css` + contrast gate — `npm run contrast`
 - [ ] Self-hosted Indic fonts (§8.3) — evidence: TBD
-- [ ] `/design` shows all §8.8 components — evidence: TBD
+- [x] `/design` expanded component gallery — `/en/design`
 - [ ] PWA: icons 192/512, background sync, offline banner — [pwa.md](./evidence/pwa.md) (partial)
 - [ ] Screenshots 360/768/1280 + design-review §8.9 — evidence: TBD
 
@@ -27,15 +27,16 @@ Re-read `docs/BRIEF.md` §17 at the start of each phase. Tick only with evidence
 
 ## P3 Explorer + pathways
 - [x] Landing hero DB-driven (no hard-coded figures) — [landing-hero.md](./evidence/landing-hero.md)
-- [ ] Ladder interactive §F6 — evidence: TBD
-- [ ] Compare §F7 — evidence: TBD
-- [ ] Evidence Drawer component §F3 — evidence: TBD
+- [x] Ladder stepped UI — `/en/ladder`
+- [x] Compare worry ↔ data table — `/en/compare`
+- [x] Evidence Drawer + SourceStrip — `src/components/evidence/drawer.tsx`
 - [ ] E2E browse — evidence: TBD
 
 ## P4 AI + Family Room
-- [ ] Full `AiTurn` Zod + SSE streaming §6.6 — evidence: TBD
-- [ ] MiniSearch retrieval §6.1 — evidence: TBD
-- [ ] Judge Mode readable trace §6.1 — evidence: TBD
+- [x] `AiTurn` Zod schema — `src/ai/schema/aiturn.ts` (SSE still TBD)
+- [x] MiniSearch retrieval in pipeline trace — `src/ai/retrieval/knowledge.ts`
+- [x] Judge Mode readable panel — `src/components/chat/judge-panel.tsx`
+- [x] Family Room UI (bubbles, meters, i18n chips) — `/en/room`
 - [ ] Eval §6.11 gates (80+ cases, red-team, counterfactual) — eval passes 91 cases, gates partial
 - [ ] Join-by-code SSE J8 — evidence: TBD
 

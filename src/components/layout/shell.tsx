@@ -54,6 +54,12 @@ export function FamilyShell({ children }: { children: React.ReactNode }) {
             else document.documentElement.dataset.contrast = "high";
             localStorage.setItem("nourish.contrast", on ? "0" : "high");
           }}>Contrast</button>
+          <button type="button" className="hidden min-h-12 rounded-full border border-line bg-surface px-3 text-sm sm:inline" onClick={() => {
+            const on = document.documentElement.dataset.lite === "1";
+            if (on) delete document.documentElement.dataset.lite;
+            else document.documentElement.dataset.lite = "1";
+            localStorage.setItem("nourish.lite", on ? "0" : "1");
+          }}>Lite</button>
           <span className="rounded-full bg-accent-soft px-3 py-1 text-sm font-semibold text-warning">{t("common.demo")}</span>
           <Link href="/talk" className="min-h-12 rounded-full bg-info px-4 py-2 text-sm font-semibold text-white">{t("common.talk")}</Link>
         </div>
