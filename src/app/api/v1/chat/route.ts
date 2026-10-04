@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { runTurn } from "@/ai/pipeline/turn";
-import { rateLimit } from "@/lib/rate-limit";
+import { dbRateLimit } from "@/lib/rate-limit-db";
+import { isSameOrigin } from "@/lib/origin";
 import { logger } from "@/lib/logger";
 
 const schema = z.object({
@@ -11,8 +12,9 @@ const schema = z.object({
 });
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return NextResponse.json({ error: "Request origin was rejected." }, { status: 403 });
   const ip = request.headers.get("x-forwarded-for") ?? "local";
-  if (!rateLimit(`chat:${ip}`, 40)) return NextResponse.json({ error: "Slow down a moment, then send again." }, { status: 429 });
+  if (!(await dbRateLimit(`chat:${ip}`, 40))) return NextResponse.json({ error: "Slow down a moment, then send again." }, { status: 429 });
   const parsed = schema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Message needs a speaker and some text." }, { status: 400 });
   try {

@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       filename: body.filename ?? "upload.csv",
       status: "pending_approval",
       mapping: JSON.stringify(mapping),
-      dryRun: JSON.stringify({ ok: result.ok.length, issues: result.issues, flags, added: result.ok.length }),
+      dryRun: JSON.stringify({ ok: result.ok.length, issues: result.issues, flags, added: result.ok.length, rows: result.ok }),
       checksum,
       makerId: session.user.email ?? "maker",
       createdAt: new Date().toISOString(),

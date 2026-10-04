@@ -2,7 +2,8 @@ import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { rateLimit } from "@/lib/rate-limit";
+import { dbRateLimit } from "@/lib/rate-limit-db";
+import { isSameOrigin } from "@/lib/origin";
 
 const schema = z.object({
   locale: z.string().default("en"),
@@ -12,8 +13,9 @@ const schema = z.object({
 });
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return NextResponse.json({ error: "Request origin was rejected." }, { status: 403 });
   const ip = request.headers.get("x-forwarded-for") ?? "local";
-  if (!rateLimit(`callback:${ip}`, 10)) {
+  if (!(await dbRateLimit(`callback:${ip}`, 10))) {
     return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
   const parsed = schema.safeParse(await request.json().catch(() => null));

@@ -12,8 +12,11 @@ const SLOT = /\{\{(fact|range|rate):([a-zA-Z0-9_-]+)\}\}/g;
 const DIGIT =
   /[0-9\u0966-\u096F\u0BE6-\u0BEF]+(?:[.,][0-9\u0966-\u096F\u0BE6-\u0BEF]+)?%?/g;
 
-const NUMBER_WORDS =
-  /\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|hundred|thousand|lakh|crore|percent|percentage)\b|\b(ek|do|teen|char|paanch|panch|paanch hazaar|sau|hazaar|hazar|lakh|crore|pratishat)\b|प्रतिशत|हज़ार|हजार|लाख|सौ|கோடி|லட்சம்|நூறு|ஆயிரம்|சதவீத/gi;
+const UNAMBIGUOUS_QUANTITY =
+  /\b(?:percent|percentage|lakh|crore|thousand|hundred)\b|प्रतिशत|हज़ार|हजार|लाख|सौ|கோடி|லட்சம்|நூறு|ஆயிரம்|சதவீத/gi;
+
+const CONTEXTUAL_NUMBER =
+  /\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|ek|do|teen|char|paanch|panch|sau|hazaar|hazar)\b(?=\s+(?:percent|%|lakh|crore|thousand|hundred|rupees?|months?|out))/gi;
 
 export type ResolveResult = {
   text: string;
@@ -46,8 +49,10 @@ export function findUngroundedNumbers(text: string, allowList: string[]): string
   for (const match of stripped.match(DIGIT) ?? []) {
     if (!allow.has(match.toLowerCase()) && !allow.has(match.replace("%", ""))) hits.push(match);
   }
-  for (const match of stripped.match(NUMBER_WORDS) ?? []) {
-    if (!allow.has(match.toLowerCase())) hits.push(match);
+  for (const pattern of [UNAMBIGUOUS_QUANTITY, CONTEXTUAL_NUMBER]) {
+    for (const match of stripped.match(pattern) ?? []) {
+      if (!allow.has(match.toLowerCase())) hits.push(match);
+    }
   }
   return hits;
 }

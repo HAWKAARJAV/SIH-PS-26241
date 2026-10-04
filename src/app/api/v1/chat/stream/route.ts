@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { runTurn } from "@/ai/pipeline/turn";
-import { rateLimit } from "@/lib/rate-limit";
+import { dbRateLimit } from "@/lib/rate-limit-db";
+import { isSameOrigin } from "@/lib/origin";
 import { logger } from "@/lib/logger";
 import { participantFromRequest } from "@/lib/participant";
 import { publish } from "@/realtime/room-bus";
@@ -18,8 +19,9 @@ function chunkText(text: string, size = 14) {
 }
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return new Response(JSON.stringify({ error: "Request origin was rejected." }), { status: 403 });
   const ip = request.headers.get("x-forwarded-for") ?? "local";
-  if (!rateLimit(`chat:${ip}`, 40)) {
+  if (!(await dbRateLimit(`chat:${ip}`, 40))) {
     return new Response(JSON.stringify({ error: "Slow down a moment, then send again." }), { status: 429 });
   }
   const parsed = schema.safeParse(await request.json().catch(() => null));

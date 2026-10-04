@@ -18,3 +18,5 @@
 - 2026-10-04: Family Room live updates use an in-process `RoomBus` plus client polling. A multi-instance host does not share that memory.
 - 2026-10-04: Join QR codes use the `qrcode` package, rendered on the server. No external QR host.
 - 2026-10-04: Join attempts are limited in memory (10 per IP per 10 minutes). A restart clears the counter. A persisted limiter is still open under C8.
+- 2026-10-04 (R0): Chat, join, callback, and family-create limits use the `RateBucket` table. The simulated parent code is checked only on the server. The onboarding page loads the demo code from `/api/v1/demo/parent-code` when demo mode is on, so the digits are not written into the page source.
+- 2026-10-04 (R0): Sensitive matching uses Unicode stems, not a trailing word boundary, so "suicide", "harassment", and "abused" escalate. Number words such as "do" and "one" are flagged only next to a quantity. Digits are always checked.

@@ -469,6 +469,12 @@ model ImportJob {
   createdAt  String
 }
 
+model RateBucket {
+  key     String @id
+  count   Int
+  resetAt String
+}
+
 model ReportFlag {
   id        String @id
   sessionId String?

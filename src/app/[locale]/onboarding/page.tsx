@@ -4,7 +4,7 @@ import { useRouter } from "@/lib/i18n/navigation";
 import { FAMILY_WORRIES } from "@/lib/worries";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 const STATES = [
   { id: "st-up", name: "Uttar Pradesh" },
@@ -37,7 +37,15 @@ function Wizard() {
   const [worry, setWorry] = useState(FAMILY_WORRIES.some((row) => row.id === preset) ? preset! : "INCOME_POTENTIAL");
   const [consents, setConsents] = useState<string[]>(["counselling"]);
   const [otp, setOtp] = useState("");
+  const [demoCodeLabel, setDemoCodeLabel] = useState("");
   const [error, setError] = useState("");
+  useEffect(() => {
+    void fetch("/api/v1/demo/parent-code").then(async (res) => {
+      if (!res.ok) return;
+      const data = await res.json() as { label?: string; code?: string };
+      if (data.label && data.code) setDemoCodeLabel(`${data.label} ${data.code}`);
+    });
+  }, []);
   const assisted = params.get("assisted") === "1";
   const under18 = ageBand === "15-17";
 
@@ -45,10 +53,6 @@ function Wizard() {
     setError("");
     if (!consents.includes("counselling")) {
       setError("Counselling consent is needed to open a room.");
-      return;
-    }
-    if (under18 && otp !== "123456") {
-      setError("That code is wrong. For this demo, type 123456.");
       return;
     }
     const res = await fetch("/api/v1/families", {
@@ -59,6 +63,7 @@ function Wizard() {
         mode: params.get("mode") ?? "together",
         stateId, districtId, incomeBand, worry, assisted,
         parental: under18,
+        otp: under18 ? otp : undefined,
         persons: [
           { role: "PARENT", gender: "skip" },
           { role: "LEARNER", ageBand, gender, interests: interest, classDone },
@@ -148,7 +153,7 @@ function Wizard() {
           ))}
           {under18 ? (
             <div>
-              <p>Simulated parent code for this demo: 123456. A live build would use a real OTP adapter.</p>
+              <p>{demoCodeLabel || "Simulated parent code. A live build would use a real OTP adapter."}</p>
               <input className="min-h-12 w-full rounded-xl border px-3" value={otp} onChange={(e) => setOtp(e.target.value)} aria-label="Simulated parent code" inputMode="numeric" />
             </div>
           ) : null}

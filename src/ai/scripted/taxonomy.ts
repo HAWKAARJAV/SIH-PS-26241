@@ -23,8 +23,45 @@ export const OBJECTION_CODES = [
 
 export type ObjectionCode = (typeof OBJECTION_CODES)[number];
 
-export const SENSITIVE =
-  /\b(suicid|kill myself|self-harm|abuse|harass|rape|violence|beat me|legal case|court|disability|disabled|fraud complaint)\b|आत्महत्या|मार|पीट|उत्पीड़न|வன்புணர்வு|துன்புறுத்தல்/i;
+const SENSITIVE_PATTERNS: RegExp[] = [
+  /suicid\p{L}*/iu,
+  /self[\s-]*harm\p{L}*/iu,
+  /kill myself/iu,
+  /end my life/iu,
+  /harass\p{L}*/iu,
+  /abus\p{L}*/iu,
+  /\brape\b/iu,
+  /molest\p{L}*/iu,
+  /beat(?:ing|en)? me/iu,
+  /\bbeating\b/iu,
+  /violen\p{L}*/iu,
+  /domestic violence/iu,
+  /dowry harassment/iu,
+  /disability accommodation/iu,
+  /\bdisabled\b/iu,
+  /legal case/iu,
+  /court notice/iu,
+  /fraud complaint/iu,
+  /आत्महत्या/u,
+  /खुद को मार/u,
+  /मार(?:ना|ता|ती|ते| रहा| रही)/u,
+  /पीट(?:ना|ता|ती|ते| रहा)?/u,
+  /उत्पीड़न/u,
+  /छेड़\s*छाड़/u,
+  /aatmahatya/iu,
+  /chhed[\s-]*chh?ad/iu,
+  /maarta hai/iu,
+  /marta hai/iu,
+  /வன்புணர்வு/u,
+  /துன்புறுத்தல்/u,
+  /தான் கொலை/u,
+];
+
+export function isSensitive(text: string): boolean {
+  return SENSITIVE_PATTERNS.some((pattern) => pattern.test(text));
+}
+
+export const SENSITIVE = { test: isSensitive };
 
 export const ESCALATION_ASK =
   /\b(talk to (a )?(person|human|counsellor)|call (a )?counsellor|insaan se|counsellor se|ஆலோசகர்|सलाहकार)\b/i;
@@ -37,23 +74,23 @@ export type Lexicon = { code: ObjectionCode; patterns: RegExp[] };
 export const LEXICON: Lexicon[] = [
   { code: "INCOME_POTENTIAL", patterns: [/earn|income|salary|kamai|kamaai|कमाई|पैसा|சம்பளம்|ஊதியம்|पगार/i] },
   { code: "JOB_SECURITY", patterns: [/job secur|naukri pakki|placement|नौकरी|பணி|नोकरी पक्की|secure job/i] },
-  { code: "SOCIAL_STATUS", patterns: [/log kya|izzat|status|samaj|சமூக|मान|काय म्हणतील|what will people/i] },
-  { code: "GIRLS_SAFETY_TRAVEL", patterns: [/beti|daughter|girl|ladki|travel|distance|பெண்|மகள|मुलगी|बेटि|hostel for girl/i] },
+  { code: "SOCIAL_STATUS", patterns: [/log kya|izzat|status|samaj|சமூக|मान|काय म्हणतील|what will people|लोग क्या/i] },
+  { code: "GIRLS_SAFETY_TRAVEL", patterns: [/beti|daughter|girl|ladki|travel|distance|பெண்|மகள|मुलगी|बेटि|बेटी|hostel for girl/i] },
   { code: "WORK_SAFETY", patterns: [/unsafe|accident|safety|surakshit|பாதுகாப்பு|सुरक्ष|धोका/i] },
   { code: "DEGREE_PREFERENCE", patterns: [/degree|b\.?a|b\.?com|college first|डिग्री|பட்டம்|पदवी/i] },
   { code: "GOVT_JOB_PREFERENCE", patterns: [/govt job|government job|sarkari|அரசு வேலை|सरकारी/i] },
   { code: "COST_FEES", patterns: [/fee|fees|kharcha|afford|फीस|கட்டணம்|शुल्क/i] },
   { code: "DISTANCE_HOSTEL", patterns: [/hostel|door|far away|stay away|தூரம்|छात्रावास/i] },
   { code: "LOST_ACADEMIC_YEAR", patterns: [/drop year|waste year|saal barbaad|ஆண்டு வீண்|वर्ष खराब/i] },
-  { code: "MARRIAGE_PROSPECTS", patterns: [/shaadi|marriage|rishta|திருமணம்|लग्न/i] },
+  { code: "MARRIAGE_PROSPECTS", patterns: [/shaadi|marriage|rishta|திருமணம்|लग्न|शादी/i] },
   { code: "MIGRATION_AWAY", patterns: [/migrate|another city|bahut door|வேறு ஊர்|स्थलांतर/i] },
   { code: "PROVIDER_TRUST_FRAUD", patterns: [/fraud|fake college|cheat|धोखा|மோசடி|फसवणूक/i] },
   { code: "CERTIFICATE_RECOGNITION", patterns: [/certificate|recognition|valid|प्रमाणपत्र|சான்றிதழ்/i] },
-  { code: "AUTOMATION_FUTURE", patterns: [/automation|robot|future of|ai will replace|यंत्र/i] },
+  { code: "AUTOMATION_FUTURE", patterns: [/automation|robot|future of|ai will replace|यंत्र|இயந்திரம்/i] },
   { code: "PHYSICAL_LABOUR_STIGMA", patterns: [/labour|labor|mehnat|dirty work|உடல் உழைப்பு|मजदूरी/i] },
   { code: "LANGUAGE_LITERACY_BARRIER", patterns: [/can't read|padh nahi|low literacy|படிக்க தெரியாது|अक्षर/i] },
   { code: "ELDER_VETO", patterns: [/grandfather|elder|papa mana|family will not|மூத்தவர்|दादा/i] },
-  { code: "LEARNER_UNSURE", patterns: [/not sure|confused|samajh nahi|தெரியவில்லை|गोंधळ/i] },
+  { code: "LEARNER_UNSURE", patterns: [/not sure|confused|samajh nahi|தெரியவில்லை|गोंधळ|समझ नहीं/i] },
 ];
 
 export function detectLanguage(text: string): "en" | "hi" | "mr" | "ta" | "hinglish" {

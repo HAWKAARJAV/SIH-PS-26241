@@ -16,7 +16,8 @@ Status: `open` | `in_progress` | `closed` | `deferred`. Evidence: path in `docs/
 | A10 | open | `src/components/charts/` |
 | A11 | open | `public/fonts/`, `docs/ATTRIBUTIONS.md` |
 | B1–B10 | open | `src/ai/` |
-| C1–C5 | open | `docs/evidence/eval/` |
+| C1 | closed | `docs/evidence/eval/report.json`, `docs/evidence/r0-safety.md` |
+| C2–C5 | open | `docs/evidence/eval/` |
 | D1–D10 | open | `src/app/[locale]/` |
 | E1–E8 | open | `src/app/[locale]/design/`, `docs/screenshots/` |
 | F1–F5 | open | `src/messages/` |

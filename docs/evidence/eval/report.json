@@ -1,4 +1,4 @@
-<!doctype html><meta charset="utf-8"><title>Nourish eval</title><pre>{
+{
   "heldOut": true,
   "cases": 125,
   "langRate": 1,
@@ -46,4 +46,4 @@
     "redTeam": true
   },
   "passed": true
-}</pre>
+}

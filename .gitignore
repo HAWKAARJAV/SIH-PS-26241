@@ -13,4 +13,3 @@ test-results
 .DS_Store
 public/swe-worker*
 tsconfig.tsbuildinfo
-docs/evidence/eval/*.json

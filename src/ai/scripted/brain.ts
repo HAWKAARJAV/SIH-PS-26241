@@ -131,6 +131,19 @@ export function scriptedTurn(input: ScriptInput): {
   const primary = tags[0] ?? "OTHER";
   const voice = input.speaker === "LEARNER" ? "learner" : "parent";
   const sensitive = SENSITIVE.test(input.text);
+  if (sensitive) {
+    return {
+      language,
+      blocks: [{ type: "text", text: "I am stopping here. Please talk to a person now. The helplines on this screen are for this moment. I will not continue the counselling." }],
+      objections: [],
+      sentiment: voice === "parent" ? { parent: -1 } : { learner: -1 },
+      stance: voice === "parent" ? { parent: "VETO" } : { learner: "VETO" },
+      usedFactIds: [],
+      needsHuman: { flag: true, reason: "sensitive_topic" },
+      suggestedChips: [],
+      scripted: true,
+    };
+  }
   const asked = ESCALATION_ASK.test(input.text);
   const guarantee = GUARANTEE.test(input.text);
   const intensity: 1 | 2 | 3 = sensitive ? 3 : guarantee ? 2 : 2;

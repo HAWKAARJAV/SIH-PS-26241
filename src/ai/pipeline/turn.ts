@@ -101,7 +101,8 @@ export async function runTurn(input: {
     resolved = { text: "I will not state a number I cannot show from the dataset. A counsellor can help.", usedFactIds: [], missing: [] };
     guard = { ok: true, violations: [] };
   }
-  const needsHuman = scripted.needsHuman.flag || SENSITIVE.test(redacted);
+  const sensitive = SENSITIVE.test(redacted);
+  const needsHuman = scripted.needsHuman.flag || sensitive;
   const trace = {
     language: scripted.language,
     tags: scripted.objections.map((o) => o.tag),
@@ -160,6 +161,24 @@ export async function runTurn(input: {
   });
   if (evidence.card) {
     await prisma.evidenceView.create({ data: { id: randomUUID(), sessionId: session.id, factId: evidence.card.id, createdAt: now } });
+  }
+  if (sensitive) {
+    const due = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    await prisma.escalationCase.create({
+      data: {
+        id: randomUUID(),
+        familyId: session.familyId,
+        sessionId: session.id,
+        status: "open",
+        reason: "sensitive_topic",
+        language: session.locale,
+        districtId: session.family.districtId,
+        priority: 3,
+        slaDueAt: due,
+        brief: "Sensitive topic. Show helplines. Do not continue counselling in this turn.",
+        createdAt: now,
+      },
+    });
   }
   return {
     message: reply,

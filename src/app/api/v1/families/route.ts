@@ -2,7 +2,9 @@ import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { rateLimit } from "@/lib/rate-limit";
+import { dbRateLimit } from "@/lib/rate-limit-db";
+import { checkSimulatedParentCode } from "@/lib/otp";
+import { isSameOrigin } from "@/lib/origin";
 
 const bodySchema = z.object({
   locale: z.string().default("en"),
@@ -21,14 +23,18 @@ const bodySchema = z.object({
   })).default([]),
   consents: z.array(z.string()).default(["counselling"]),
   parental: z.boolean().optional(),
+  otp: z.string().optional(),
 });
 
 export async function POST(request: Request) {
+  if (!isSameOrigin(request)) return NextResponse.json({ error: "Request origin was rejected." }, { status: 403 });
   const ip = request.headers.get("x-forwarded-for") ?? "local";
-  if (!rateLimit(`family:${ip}`, 20)) return NextResponse.json({ error: "Too many rooms. Wait a minute." }, { status: 429 });
+  if (!(await dbRateLimit(`family:${ip}`, 20))) return NextResponse.json({ error: "Too many rooms. Wait a minute." }, { status: 429 });
   const json = await request.json().catch(() => null);
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) return NextResponse.json({ error: "Check the form and try again." }, { status: 400 });
+  const otpError = checkSimulatedParentCode(parsed.data.otp, Boolean(parsed.data.parental));
+  if (otpError) return NextResponse.json({ error: otpError }, { status: 400 });
   const now = new Date().toISOString();
   const familyId = randomUUID();
   const sessionId = randomUUID();
