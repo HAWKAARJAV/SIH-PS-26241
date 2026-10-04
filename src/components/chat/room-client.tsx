@@ -43,6 +43,7 @@ export function RoomClient({ locale }: { locale: string }) {
   const [rate, setRate] = useState(1);
   const [wiped, setWiped] = useState(false);
   const [inApp, setInApp] = useState(false);
+  const [live, setLive] = useState<"Live" | "Reconnecting" | "">("");
   const [presetWorry, setPresetWorry] = useState<string | null>(null);
 
   useEffect(() => {
@@ -71,10 +72,27 @@ export function RoomClient({ locale }: { locale: string }) {
       setConcerns(data.objections);
     }
     void pull();
-    const timer = window.setInterval(() => void pull(), 4000);
+    let timer: number | undefined;
+    let source: EventSource | null = null;
+    function startPoll() {
+      setLive("Reconnecting");
+      timer = window.setInterval(() => void pull(), 2000);
+    }
+    if (typeof EventSource !== "undefined") {
+      source = new EventSource(`/api/v1/rooms/${sessionId}/events`);
+      source.onopen = () => setLive("Live");
+      source.onmessage = () => void pull();
+      source.onerror = () => {
+        source?.close();
+        if (!timer) startPoll();
+      };
+    } else {
+      startPoll();
+    }
     return () => {
       stop = true;
-      window.clearInterval(timer);
+      source?.close();
+      if (timer) window.clearInterval(timer);
     };
   }, [sessionId]);
 
@@ -293,8 +311,15 @@ export function RoomClient({ locale }: { locale: string }) {
       </section>
       <aside className="space-y-4">
         <div className="rounded-[var(--radius-card)] border border-line bg-warm p-4">
-          <h2 className="font-semibold">{t("joinTitle")}</h2>
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="font-semibold">{t("joinTitle")}</h2>
+            {live ? <span className="rounded-full bg-surface px-2 py-1 text-xs font-semibold">{live}</span> : null}
+          </div>
           <p className="tabular text-3xl font-bold text-primary">{join || "——"}</p>
+          {sessionId && join ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img alt="QR code for the other phone" className="mt-2 h-28 w-28 rounded-xl bg-white" src={`/api/v1/sessions/${sessionId}/qr`} />
+          ) : null}
           <p className="text-sm text-muted">{t("shareCode")}</p>
           <h3 className="mt-4 font-semibold">{t("haveCode")}</h3>
           <JoinBox onJoined={(id, joinCode) => { setSessionId(id); setJoin(joinCode); localStorage.setItem("nourish.session", id); localStorage.setItem("nourish.join", joinCode); }} />

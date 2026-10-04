@@ -11,8 +11,6 @@ prisma/dev.db-journal
 playwright-report
 test-results
 .DS_Store
-public/sw.js
 public/swe-worker*
 tsconfig.tsbuildinfo
 docs/evidence/eval/*.json
-docs/evidence/lighthouse

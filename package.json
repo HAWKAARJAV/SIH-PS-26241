@@ -10,7 +10,7 @@
     "dev": "next dev",
     "dev:clean": "npm run clean && npm run dev",
     "demo": "next dev",
-    "build": "prisma generate && next build",
+    "build": "node scripts/generate-sw.mjs && prisma generate && next build",
     "start": "node scripts/start-standalone.mjs",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
@@ -28,7 +28,7 @@
     "audio:generate": "tsx scripts/audio-generate.ts",
     "docker:up": "docker compose up --build",
     "postinstall": "prisma generate",
-    "verify": "npm run setup && npm run contrast && npm run i18n:check && npm run typecheck && npm run lint && npm run test && npm run eval && npm run build && npm run bundle:check"
+    "verify": "npm run setup && npm run contrast && npm run i18n:check && npm run typecheck && npm run lint && npm run test && npm run eval && npm run build && npm run bundle:check && npm run e2e -- --project=mobile && npm run a11y && npm audit --omit=dev --audit-level=high"
   },
   "prisma": {
     "seed": "tsx prisma/seed/index.ts"
@@ -51,6 +51,7 @@
     "next-intl": "^4.3.9",
     "papaparse": "^5.5.3",
     "pino": "^9.11.0",
+    "qrcode": "^1.5.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "recharts": "^3.2.1",
@@ -59,14 +60,15 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
+    "@eslint/eslintrc": "^3.3.1",
     "@playwright/test": "^1.55.0",
     "@tailwindcss/postcss": "^4.1.13",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^24.5.2",
     "@types/papaparse": "^5.3.16",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
-    "@eslint/eslintrc": "^3.3.1",
     "eslint": "^9.36.0",
     "eslint-config-next": "^15.5.4",
     "prisma": "^6.16.2",

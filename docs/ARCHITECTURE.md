@@ -16,6 +16,21 @@ flowchart LR
 Numbers shown to a family are loaded from OutcomeStat rows, passed through slot tokens, and checked again for stray digits. The model is not allowed to invent a figure.
 
 ```mermaid
+sequenceDiagram
+  participant A as Phone A
+  participant API as Room API
+  participant Bus as RoomBus
+  participant B as Phone B
+  A->>API: POST /chat/stream
+  API->>Bus: message.created and disha.done
+  B->>API: GET /rooms/:id/events (SSE)
+  Bus-->>B: event
+  Note over B: If SSE drops, poll GET /sessions/:id every 2s
+```
+
+The bus is in-process. A second instance does not share memory, so the client falls back to polling message rows.
+
+```mermaid
 erDiagram
   Family ||--o{ Session : has
   Session ||--o{ Message : has

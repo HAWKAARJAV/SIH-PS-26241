@@ -11,10 +11,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm install
+      - run: npm ci
       - run: cp .env.example .env
-      - run: npm run setup
-      - run: npm run verify
       - run: npx playwright install --with-deps chromium
-      - run: npm run e2e -- --project=mobile
-      - run: npm run a11y
+      - run: npm run verify

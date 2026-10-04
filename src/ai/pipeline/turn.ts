@@ -3,7 +3,9 @@ import { isDemoMode } from "@/config/env";
 import { llmJsonSchema } from "@/ai/schema/aiturn";
 import { searchKnowledge } from "@/ai/retrieval/knowledge";
 import { scriptedTurn } from "@/ai/scripted/brain";
+import { allowListForTurn } from "@/ai/guard/allow-list";
 import { guardReply, resolveSlots, type FactSlot } from "@/ai/guard/number-guard";
+import { nextObjectionStatus } from "@/ai/objections/lifecycle";
 import { redactPii } from "@/lib/privacy/redact";
 import { getProvider } from "@/ai/providers";
 import { logger } from "@/lib/logger";
@@ -24,22 +26,24 @@ export async function runTurn(input: {
   if (!session || session.family.deletedAt) throw new Error("Session not found");
   const redacted = redactPii(input.text);
   const girl = session.family.persons.some((p) => p.gender === "girl");
-  const tradeInterest = session.family.persons.find((p) => p.interests)?.interests.split(",")[0] || "electrician";
+  const tradeInterest = session.family.persons.find((p) => p.interests)?.interests.split(",").map((part) => part.trim()).find(Boolean) ?? "";
   const parentSilent = countParentSilence(session.messages.map((m) => m.speaker));
   const sameTag = session.objections.filter((o) => o.status === "open").length;
-  const evidence = await resolveEvidence({
-    tradeId: `tr-${tradeInterest}`,
-    districtId: session.family.districtId,
-    stateId: session.family.stateId,
-    locale: session.locale,
-  });
+  const evidence = tradeInterest
+    ? await resolveEvidence({
+        tradeId: `tr-${tradeInterest}`,
+        districtId: session.family.districtId,
+        stateId: session.family.stateId,
+        locale: session.locale,
+      })
+    : { card: null as Awaited<ReturnType<typeof resolveEvidence>>["card"] };
   const retrieval = await searchKnowledge(session.locale, redacted, 2);
   const scripted = scriptedTurn({
     text: redacted,
     locale: session.locale,
     speaker: input.speaker,
     parentSilentTurns: parentSilent,
-    tradeSlug: tradeInterest,
+    tradeSlug: tradeInterest || undefined,
     girl,
     attemptCount: sameTag >= 2 ? 2 : 0,
     hasVerifiedFact: Boolean(evidence.card),
@@ -80,8 +84,11 @@ export async function runTurn(input: {
     };
     facts[`outcome:${tradeInterest}`] = facts[evidence.card.id]!;
   }
+  if (!tradeInterest) {
+    rawText = `Which trade should we look at? ${rawText}`;
+  }
   let resolved = resolveSlots(rawText, facts);
-  const allow: string[] = [...(redacted.match(/\d+/g) ?? []), "10", "8", "12"];
+  const allow = allowListForTurn(redacted);
   let guard = guardReply(resolved.text, allow);
   if (!guard.ok) {
     rawText = scripted.blocks.filter((b) => b.type === "text" || b.type === "question").map((b) => ("text" in b ? b.text : "")).join(" ");
@@ -134,7 +141,11 @@ export async function runTurn(input: {
         tag: objection.tag,
         speaker: objection.speaker,
         intensity: objection.intensity,
-        status: "open",
+        status: nextObjectionStatus({
+          current: "open",
+          answeredWithEvidence: Boolean(evidence.card),
+          speakerClearedIt: /\b(clear|understood|theek|samajh|sari|சரி)\b/i.test(redacted),
+        }),
         createdAt: now,
       },
     });

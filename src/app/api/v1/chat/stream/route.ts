@@ -2,6 +2,8 @@ import { z } from "zod";
 import { runTurn } from "@/ai/pipeline/turn";
 import { rateLimit } from "@/lib/rate-limit";
 import { logger } from "@/lib/logger";
+import { participantFromRequest } from "@/lib/participant";
+import { publish } from "@/realtime/room-bus";
 
 const schema = z.object({
   sessionId: z.string().min(8),
@@ -24,16 +26,22 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return new Response(JSON.stringify({ error: "Message needs a speaker and some text." }), { status: 400 });
   }
+  const participant = participantFromRequest(request);
+  const speaker = participant && participant.sessionId === parsed.data.sessionId ? participant.role : parsed.data.speaker;
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        const result = await runTurn(parsed.data);
+        const result = await runTurn({ ...parsed.data, speaker });
+        publish(parsed.data.sessionId, "message.created", { speaker });
         const full = result.message.text;
         for (const piece of chunkText(full)) {
+          publish(parsed.data.sessionId, "disha.chunk", { text: piece });
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "token", text: piece })}\n\n`));
           await new Promise((r) => setTimeout(r, 16));
         }
+        publish(parsed.data.sessionId, "disha.done", { id: result.message.id });
+        publish(parsed.data.sessionId, "ledger.updated", {});
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({

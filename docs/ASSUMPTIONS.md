@@ -15,3 +15,6 @@
 - Western digits are the default. A native-digit toggle is not a separate control yet; `formatInr` accepts a flag.
 - `next/font` self-hosts Figtree and Fraunces. Indic Noto faces failed to load through the Google font loader in this workspace (null match in the loader), so Hindi, Marathi, and Tamil use the Noto families by name when the operating system has them.
 - Staff auth is Auth.js credentials. Families have no accounts.
+- 2026-10-04: Family Room live updates use an in-process `RoomBus` plus client polling. A multi-instance host does not share that memory.
+- 2026-10-04: Join QR codes use the `qrcode` package, rendered on the server. No external QR host.
+- 2026-10-04: Join attempts are limited in memory (10 per IP per 10 minutes). A restart clears the counter. A persisted limiter is still open under C8.
